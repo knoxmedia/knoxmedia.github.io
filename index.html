@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9527 — 你的影库，只属于你</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0d1117;
+    --bg2:      #161b22;
+    --bg3:      #1c2433;
+    --blue-700: #0C447C;
+    --blue-600: #185FA5;
+    --blue-500: #2374c0;
+    --blue-400: #378ADD;
+    --blue-300: #5DA3EF;
+    --blue-200: #85B7EB;
+    --blue-100: #B5D4F4;
+    --blue-50:  #E6F1FB;
+    --purple:   #534AB7;
+    --purple-l: #7F77DD;
+    --teal:     #1D9E75;
+    --teal-l:   #3BC49A;
+    --amber:    #EF9F27;
+    --red:      #E24B4A;
+    --gray-600: #5F5E5A;
+    --gray-400: #8B8B85;
+    --gray-200: #B4B2A9;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-sans); background: var(--bg); color: #e6edf3; line-height: 1.6; overflow-x: hidden; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 52px; height: 58px;
+    background: rgba(13,17,23,0.92);
+    border-bottom: 1px solid rgba(133,183,235,0.1);
+    backdrop-filter: blur(16px);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+  .logo-mark {
+    width: auto; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .logo-mark img { height: 32px; width: auto; display: block; object-fit: contain; }
+  .logo-wordmark { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: white; letter-spacing: 3px; line-height: 1; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { font-size: 13px; color: var(--blue-200); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: white; }
+  .nav-cta { display: flex; gap: 10px; align-items: center; }
+  .btn-sm-ghost {
+    font-size: 12px; color: var(--blue-200); background: transparent;
+    border: 1px solid rgba(133,183,235,0.25); border-radius: 6px;
+    padding: 6px 14px; cursor: pointer; text-decoration: none; transition: all 0.2s;
+  }
+  .btn-sm-ghost:hover { border-color: var(--blue-300); color: white; }
+  .btn-sm-primary {
+    font-size: 12px; font-weight: 500; color: white;
+    background: var(--blue-600); border: none; border-radius: 6px;
+    padding: 6px 16px; cursor: pointer; text-decoration: none; transition: background 0.2s;
+  }
+  .btn-sm-primary:hover { background: var(--blue-500); }
+
+  /* ─── LANG SWITCHER ─── */
+  .lang-switcher { position: relative; }
+  .lang-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--blue-200); background: transparent;
+    border: 1px solid rgba(133,183,235,0.25); border-radius: 6px;
+    padding: 6px 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .lang-btn:hover { border-color: var(--blue-300); color: white; }
+  .lang-btn svg { flex-shrink: 0; transition: transform 0.2s; }
+  .lang-btn.open svg { transform: rotate(180deg); }
+  .lang-dropdown {
+    display: none; position: absolute; right: 0; top: calc(100% + 6px);
+    background: #1c2433; border: 1px solid rgba(133,183,235,0.15); border-radius: 8px;
+    padding: 4px; min-width: 130px; z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .lang-dropdown.open { display: block; }
+  .lang-option {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; font-size: 12.5px; color: #8b949e;
+    border-radius: 5px; cursor: pointer; transition: all 0.15s;
+  }
+  .lang-option:hover { background: rgba(56,138,221,0.1); color: white; }
+  .lang-option.active { color: var(--blue-300); background: rgba(56,138,221,0.08); }
+  .lang-flag { font-size: 14px; }
+
+  /* ─── HERO ─── */
+  .hero {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 88px 48px 64px;
+    background: radial-gradient(ellipse 900px 500px at 50% -80px, rgba(24,95,165,0.18) 0%, transparent 70%);
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; color: var(--teal-l);
+    background: rgba(29,158,117,0.1); border: 1px solid rgba(29,158,117,0.25);
+    border-radius: 20px; padding: 5px 14px; margin-bottom: 28px; letter-spacing: 0.3px;
+  }
+  .eyebrow-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal-l); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .hero-title { font-size: clamp(34px,5vw,58px); font-weight: 600; line-height: 1.15; letter-spacing: -1px; margin-bottom: 20px; }
+  .hero-title .hl { background: linear-gradient(90deg, var(--blue-300), var(--purple-l)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 16px; color: var(--blue-100); max-width: 560px; margin-bottom: 14px; line-height: 1.75; }
+  .hero-mono { font-family: var(--font-mono); font-size: 12.5px; color: var(--purple-l); margin-bottom: 36px; letter-spacing: 0.5px; }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+  .btn-hero-p {
+    font-size: 14px; font-weight: 500; color: white;
+    background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+    border: none; border-radius: 8px; padding: 11px 28px;
+    cursor: pointer; text-decoration: none; transition: opacity 0.2s; box-shadow: 0 4px 20px rgba(24,95,165,0.35);
+  }
+  .btn-hero-p:hover { opacity: 0.88; }
+  .btn-hero-s {
+    font-size: 14px; color: var(--blue-100); background: transparent;
+    border: 1px solid rgba(181,212,244,0.25); border-radius: 8px; padding: 11px 28px;
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+  }
+  .btn-hero-s:hover { border-color: var(--blue-300); color: white; }
+  .hero-trust { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+  .trust-chip { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--blue-200); }
+  .trust-chip svg { flex-shrink: 0; }
+
+  /* ─── APP SCREENSHOT ─── */
+  .screenshot-wrap { margin: 56px auto 0; max-width: 960px; width: 100%; }
+  .win-chrome {
+    background: #1c2433; border-radius: 10px 10px 0 0;
+    padding: 10px 14px; display: flex; align-items: center; gap: 7px;
+    border: 1px solid rgba(133,183,235,0.12); border-bottom: none;
+  }
+  .win-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .win-dot.r { background: #E24B4A; } .win-dot.a { background: #EF9F27; } .win-dot.g { background: #639922; }
+  .win-addr {
+    flex: 1; margin: 0 12px;
+    background: rgba(13,17,23,0.7); border: 1px solid rgba(133,183,235,0.1); border-radius: 4px;
+    padding: 3px 10px; font-family: var(--font-mono); font-size: 10.5px; color: var(--blue-200); text-align: center;
+  }
+  .win-lock { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--teal-l); }
+
+  .app-frame {
+    display: flex; height: 460px;
+    background: #0f1923;
+    border: 1px solid rgba(133,183,235,0.12); border-top: none;
+    border-radius: 0 0 10px 10px; overflow: hidden;
+  }
+
+  /* Sidebar */
+  .app-sb {
+    width: 180px; flex-shrink: 0;
+    background: #131d2a; border-right: 1px solid rgba(133,183,235,0.08);
+    display: flex; flex-direction: column;
+  }
+  .sb-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 14px 12px; border-bottom: 1px solid rgba(133,183,235,0.08);
+  }
+  .sb-logo-box {
+    width: 24px; height: 26px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sb-logo-box svg { width: 18px; height: 20px; }
+  .sb-brand { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: white; letter-spacing: 1px; }
+  .sb-search {
+    margin: 10px 10px 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(133,183,235,0.1); border-radius: 5px;
+    padding: 5px 10px; font-size: 10.5px; color: var(--gray-400); display: flex; align-items: center; gap: 5px;
+  }
+  .sb-section { font-size: 9.5px; color: var(--gray-600); letter-spacing: 1px; padding: 8px 14px 4px; text-transform: uppercase; }
+  .sb-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; font-size: 11.5px; color: #8b949e; cursor: pointer; transition: all 0.15s;
+  }
+  .sb-item:hover { background: rgba(56,138,221,0.07); color: #c9d1d9; }
+  .sb-item.on { background: rgba(56,138,221,0.12); color: white; border-left: 2px solid var(--blue-400); padding-left: 12px; }
+  .sb-icon { font-size: 13px; }
+  .sb-divider { height: 1px; background: rgba(133,183,235,0.07); margin: 6px 0; }
+  .sb-bottom { margin-top: auto; padding-bottom: 8px; }
+
+  /* Main content */
+  .app-main { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .main-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .main-h1 { font-size: 14px; font-weight: 600; color: white; }
+  .sort-chip {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(133,183,235,0.12); border-radius: 5px;
+    padding: 4px 10px; font-size: 10.5px; color: var(--blue-200);
+  }
+  .enc-pill {
+    display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--teal-l);
+    background: rgba(29,158,117,0.1); border: 1px solid rgba(29,158,117,0.2); border-radius: 10px; padding: 3px 9px;
+  }
+
+  /* Poster grid */
+  .poster-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 16px; }
+  .poster {
+    aspect-ratio: 2/3; border-radius: 5px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06); position: relative;
+    transition: transform 0.2s;
+  }
+  .poster:hover { transform: scale(1.02); }
+  .poster-bg { width: 100%; height: 100%; display: block; }
+  .poster-label { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 5px 4px; font-size: 9px; color: #e6edf3; background: linear-gradient(transparent, rgba(0,0,0,0.8)); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Continue watching */
+  .section-h { font-size: 12px; font-weight: 600; color: #c9d1d9; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+  .cw-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cw-card { border-radius: 5px; overflow: hidden; background: var(--bg3); border: 1px solid rgba(133,183,235,0.07); }
+  .cw-thumb { aspect-ratio: 16/9; position: relative; }
+  .cw-thumb-bg { width: 100%; height: 100%; display: block; }
+  .cw-bar { height: 2px; background: rgba(255,255,255,0.1); }
+  .cw-fill { height: 100%; background: var(--blue-400); }
+  .cw-info { padding: 5px 7px; }
+  .cw-title { font-size: 9.5px; color: #c9d1d9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cw-ep { font-size: 9px; color: var(--gray-400); margin-top: 1px; }
+
+  /* ─── STATS ─── */
+  .stats-row {
+    background: var(--bg2); border-top: 1px solid rgba(133,183,235,0.1); border-bottom: 1px solid rgba(133,183,235,0.1);
+    display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+  }
+  .stat { text-align: center; padding: 28px 52px; border-right: 1px solid rgba(133,183,235,0.08); }
+  .stat:last-child { border-right: none; }
+  .stat-n { font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: white; }
+  .stat-l { font-size: 11.5px; color: var(--blue-200); margin-top: 4px; }
+
+  /* ─── MEDIA TYPES ─── */
+  .media-types { padding: 72px 80px; max-width: 1200px; margin: 0 auto; }
+  .sec-tag { font-size: 10.5px; color: var(--blue-400); letter-spacing: 2.5px; text-align: center; margin-bottom: 10px; text-transform: uppercase; }
+  .sec-h2 { font-size: clamp(22px,3vw,34px); font-weight: 600; text-align: center; color: white; margin-bottom: 8px; line-height: 1.3; }
+  .sec-p { font-size: 14.5px; color: var(--blue-100); text-align: center; margin-bottom: 48px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+  .type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 0; }
+  .type-card {
+    background: var(--bg2); border: 1px solid rgba(133,183,235,0.1); border-radius: 10px;
+    padding: 20px 16px; text-align: center; cursor: default; transition: border-color 0.2s, transform 0.2s;
+  }
+  .type-card:hover { border-color: rgba(56,138,221,0.35); transform: translateY(-2px); }
+  .type-icon { font-size: 26px; margin-bottom: 8px; }
+  .type-name { font-size: 13px; font-weight: 500; color: white; margin-bottom: 4px; }
+  .type-desc { font-size: 11px; color: var(--gray-400); line-height: 1.5; }
+
+  /* ─── FEATURES DEEP ─── */
+  .features { padding: 0 80px 72px; max-width: 1200px; margin: 0 auto; }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+  .feat-card {
+    background: var(--bg2); border: 1px solid rgba(133,183,235,0.1); border-radius: 12px;
+    padding: 24px 22px; transition: border-color 0.2s;
+  }
+  .feat-card:hover { border-color: rgba(56,138,221,0.35); }
+  .feat-icon { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 18px; }
+  .fi-blue   { background: rgba(24,95,165,0.2); }
+  .fi-purple { background: rgba(83,74,183,0.2); }
+  .fi-teal   { background: rgba(29,158,117,0.2); }
+  .fi-amber  { background: rgba(239,159,39,0.2); }
+  .fi-red    { background: rgba(226,75,74,0.2); }
+  .fi-indigo { background: rgba(99,102,241,0.2); }
+  .feat-h { font-size: 14px; font-weight: 600; color: white; margin-bottom: 6px; }
+  .feat-p { font-size: 12.5px; color: #8b949e; line-height: 1.7; }
+  .feat-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+  .tag { font-size: 10px; color: var(--blue-300); background: rgba(24,95,165,0.15); border: 1px solid rgba(56,138,221,0.2); border-radius: 4px; padding: 2px 7px; }
+
+  /* ─── SECURITY BLOCK ─── */
+  .security-block {
+    margin: 0 80px 72px; max-width: calc(1200px - 160px); margin-left: auto; margin-right: auto;
+    background: linear-gradient(135deg, rgba(24,95,165,0.12) 0%, rgba(83,74,183,0.12) 100%);
+    border: 1px solid rgba(133,183,235,0.15); border-radius: 16px;
+    padding: 48px; display: flex; gap: 64px; align-items: center;
+  }
+  .sec-left { flex: 1; }
+  .sec-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal-l); background: rgba(29,158,117,0.12); border: 1px solid rgba(29,158,117,0.25); border-radius: 12px; padding: 4px 12px; margin-bottom: 16px; }
+  .sec-h { font-size: 26px; font-weight: 600; color: white; line-height: 1.3; margin-bottom: 12px; }
+  .sec-body { font-size: 13.5px; color: #8b949e; line-height: 1.75; margin-bottom: 20px; }
+  .sec-items { display: flex; flex-direction: column; gap: 10px; }
+  .sec-item { display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; color: var(--blue-100); }
+  .sec-item::before { content: "✓"; color: var(--teal-l); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .sec-right { flex-shrink: 0; }
+  .shield-big {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(24,95,165,0.25), rgba(83,74,183,0.25));
+    border: 2px solid rgba(56,138,221,0.3);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  }
+  .shield-num { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: white; letter-spacing: 2px; }
+  .shield-sub { font-size: 10px; color: var(--blue-200); letter-spacing: 0.5px; }
+
+  /* ─── COMPARE ─── */
+  .compare { padding: 0 80px 72px; max-width: 1200px; margin: 0 auto; }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+  table.cmp thead th { padding: 12px 18px; font-weight: 500; border-bottom: 1px solid rgba(133,183,235,0.12); }
+  table.cmp thead th:first-child { color: var(--blue-200); text-align: left; }
+  table.cmp thead th:not(:first-child) { text-align: center; }
+  .th9 { background: rgba(24,95,165,0.15); color: white; border-radius: 8px 8px 0 0; }
+  table.cmp tbody td { padding: 10px 18px; border-bottom: 1px solid rgba(133,183,235,0.06); }
+  table.cmp tbody td:first-child { color: #8b949e; }
+  table.cmp tbody td:not(:first-child) { text-align: center; }
+  table.cmp tbody tr:hover td { background: rgba(56,138,221,0.03); }
+  .td9 { background: rgba(24,95,165,0.07); color: white; }
+  .ck { color: var(--teal-l); font-weight: 600; }
+  .cx { color: var(--gray-600); }
+  .cp { color: var(--amber); font-size: 11px; }
+
+  /* ─── CTA ─── */
+  .cta { padding: 80px 48px; text-align: center; border-top: 1px solid rgba(133,183,235,0.08); }
+  .cta-h { font-size: clamp(26px,4vw,44px); font-weight: 600; color: white; margin-bottom: 14px; line-height: 1.25; }
+  .cta-p { font-size: 15px; color: var(--blue-100); margin-bottom: 36px; max-width: 440px; margin-left: auto; margin-right: auto; }
+  .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .btn-cta {
+    font-size: 14px; font-weight: 500; color: white;
+    background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+    border: none; border-radius: 8px; padding: 12px 32px;
+    cursor: pointer; text-decoration: none; box-shadow: 0 4px 20px rgba(24,95,165,0.3);
+    transition: opacity 0.2s;
+  }
+  .btn-cta:hover { opacity: 0.85; }
+  .btn-cta-o {
+    font-size: 14px; color: var(--blue-100); background: transparent;
+    border: 1px solid rgba(181,212,244,0.22); border-radius: 8px; padding: 12px 32px;
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
+  }
+  .btn-cta-o:hover { border-color: var(--blue-300); color: white; }
+  .cta-note { font-size: 11.5px; color: var(--gray-600); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 24px 52px; display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(133,183,235,0.07);
+  }
+  .ft-brand { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--blue-200); letter-spacing: 2px; }
+  .ft-copy { font-size: 11.5px; color: var(--gray-600); }
+  .ft-links { display: flex; gap: 18px; }
+  .ft-links a { font-size: 11.5px; color: var(--blue-200); text-decoration: none; transition: color 0.2s; }
+  .ft-links a:hover { color: white; }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 16px; } .nav-links { display: none; }
+    .hero { padding: 56px 16px 40px; }
+    .stats-row { flex-direction: column; } .stat { border-right: none; border-bottom: 1px solid rgba(133,183,235,0.08); padding: 20px; }
+    .media-types, .features, .compare { padding-left: 16px; padding-right: 16px; }
+    .security-block { margin: 0 16px 48px; padding: 28px; flex-direction: column; gap: 28px; }
+    .app-frame { flex-direction: column; }
+    .app-sb { width: 100%; flex-direction: row; height: 44px; overflow-x: auto; }
+    .poster-grid { grid-template-columns: repeat(3, 1fr); }
+    .cw-row { grid-template-columns: repeat(2, 1fr); }
+    footer { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="logo-mark">
+      <img src="./assets/logo-shield.png" alt="9527">
+    </div>
+    <span class="logo-wordmark">9527</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" data-i18n="nav_features"></a></li>
+    <li><a href="#" data-i18n="nav_media"></a></li>
+    <li><a href="#" data-i18n="nav_security"></a></li>
+    <li><a href="#" data-i18n="nav_compare"></a></li>
+    <li><a href="#" data-i18n="nav_docs"></a></li>
+  </ul>
+  <div class="nav-cta">
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+      <button class="lang-btn" id="langBtn" onclick="toggleLangDropdown()">
+        <span id="langFlag">🇨🇳</span>
+        <span id="langLabel">简体中文</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#85B7EB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-option active" onclick="setLang('zh-CN')"><span class="lang-flag">🇨🇳</span> 简体中文</div>
+        <div class="lang-option" onclick="setLang('zh-TW')"><span class="lang-flag">🇨🇳</span> 繁體中文</div>
+        <div class="lang-option" onclick="setLang('en')"><span class="lang-flag">🇺🇸</span> English</div>
+        <div class="lang-option" onclick="setLang('ja')"><span class="lang-flag">🇯🇵</span> 日本語</div>
+        <div class="lang-option" onclick="setLang('ko')"><span class="lang-flag">🇰🇷</span> 한국어</div>
+      </div>
+    </div>
+    <a class="btn-sm-ghost" href="#">GitHub ★</a>
+    <a class="btn-sm-primary" href="#" data-i18n="nav_deploy"></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="eyebrow-dot"></span>
+    <span data-i18n="hero_eyebrow"></span>
+  </div>
+  <h1 class="hero-title"><span data-i18n="hero_title_1"></span><span class="hl" data-i18n="hero_title_2"></span></h1>
+  <p class="hero-sub" data-i18n="hero_sub"></p>
+  <p class="hero-mono">Your media. Your rules. Your <strong>9527</strong>.</p>
+  <div class="hero-btns">
+    <a class="btn-hero-p" href="#" data-i18n="hero_btn_deploy"></a>
+    <a class="btn-hero-s" href="#" data-i18n="hero_btn_demo"></a>
+  </div>
+  <div class="hero-trust">
+    <span class="trust-chip">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L11 3v4C11 9.5 9 11 6.5 12C4 11 2 9.5 2 7V3L6.5 1z" fill="#3BC49A" opacity="0.85"/></svg>
+      <span data-i18n="trust_drm"></span>
+    </span>
+    <span class="trust-chip">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#3BC49A" stroke-width="1" opacity="0.8"/><path d="M4 6.5L6 8.5L9.5 4.5" stroke="#3BC49A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span data-i18n="trust_zero"></span>
+    </span>
+    <span class="trust-chip">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="3" stroke="#3BC49A" stroke-width="1" opacity="0.8"/><path d="M4.5 6.5h4M6.5 4.5v4" stroke="#3BC49A" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span data-i18n="trust_opensource"></span>
+    </span>
+    <span class="trust-chip">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="3.5" width="10" height="7" rx="2" stroke="#3BC49A" stroke-width="1" opacity="0.8"/><path d="M4 3.5V2.5Q4 1 6.5 1Q9 1 9 2.5V3.5" stroke="#3BC49A" stroke-width="1" stroke-linecap="round"/></svg>
+      <span data-i18n="trust_lang"></span>
+    </span>
+    <span class="trust-chip">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 9L3.5 3L6.5 7L8.5 4.5L12 9H1z" fill="#3BC49A" opacity="0.8"/></svg>
+      <span data-i18n="trust_cross"></span>
+    </span>
+  </div>
+
+  <!-- APP PREVIEW -->
+  <div class="screenshot-wrap">
+    <div class="win-chrome">
+      <span class="win-dot r"></span>
+      <span class="win-dot a"></span>
+      <span class="win-dot g"></span>
+      <div class="win-addr" data-i18n="win_addr"></div>
+      <div class="win-lock">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1L8.5 2.5v3C8.5 7.5 7 8.5 5 9.5C3 8.5 1.5 7.5 1.5 5.5v-3L5 1z" fill="#3BC49A"/></svg>
+        <span data-i18n="win_lock"></span>
+      </div>
+    </div>
+    <div class="app-frame">
+      <!-- Sidebar -->
+      <div class="app-sb">
+        <div class="sb-header">
+          <div class="sb-logo-box">
+            <svg viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="shieldGrad2" x1="0" y1="0" x2="40" y2="48" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#2374c0"/>
+                  <stop offset="40%" stop-color="#185FA5"/>
+                  <stop offset="100%" stop-color="#534AB7"/>
+                </linearGradient>
+              </defs>
+              <path d="M20 2 L31 2 C35.5 2 38 5 38 9 L38 18 C38 28 32 37 20 46 C8 37 2 28 2 18 L2 9 C2 5 4.5 2 9 2 Z" fill="url(#shieldGrad2)"/>
+              <rect x="14.5" y="22" width="11" height="10.5" rx="2" fill="white"/>
+              <path d="M16.5 22V17.5c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5V22" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="20" cy="27" r="1.8" fill="url(#shieldGrad2)"/>
+              <line x1="20" y1="28.8" x2="20" y2="30.5" stroke="url(#shieldGrad2)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="sb-brand">9527</span>
+        </div>
+        <div class="sb-search">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="4" cy="4" r="3" stroke="#8b8b85" stroke-width="1"/><path d="M7 7L9 9" stroke="#8b8b85" stroke-width="1" stroke-linecap="round"/></svg>
+          <span data-i18n="sb_search"></span>
+        </div>
+        <div class="sb-item on"><span class="sb-icon">🏠</span> <span data-i18n="sb_home"></span></div>
+        <div class="sb-item"><span class="sb-icon">☆</span> <span data-i18n="sb_fav"></span></div>
+        <div class="sb-divider"></div>
+        <div class="sb-section" data-i18n="sb_section_media"></div>
+        <div class="sb-item"><span class="sb-icon">🎬</span> <span data-i18n="sb_movies"></span></div>
+        <div class="sb-item"><span class="sb-icon">📺</span> <span data-i18n="sb_tv"></span></div>
+        <div class="sb-item"><span class="sb-icon">✨</span> <span data-i18n="sb_anime"></span></div>
+        <div class="sb-item"><span class="sb-icon">🎵</span> <span data-i18n="sb_music"></span></div>
+        <div class="sb-item"><span class="sb-icon">🖼️</span> <span data-i18n="sb_photos"></span></div>
+        <div class="sb-item"><span class="sb-icon">📄</span> <span data-i18n="sb_docs"></span></div>
+        <div class="sb-divider"></div>
+        <div class="sb-section" data-i18n="sb_section_admin"></div>
+        <div class="sb-item"><span class="sb-icon">⚙️</span> <span data-i18n="sb_settings"></span></div>
+        <div class="sb-item"><span class="sb-icon">📊</span> <span data-i18n="sb_console"></span></div>
+      </div>
+
+      <!-- Main -->
+      <div class="app-main">
+        <div class="main-topbar">
+          <span class="main-h1" data-i18n="main_library"></span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="sort-chip" data-i18n="sort_date"></div>
+            <div class="enc-pill">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 0.5L8 2v3C8 7 6.5 8 4.5 8.5C2.5 8 1 7 1 5V2L4.5 0.5z" fill="#3BC49A"/></svg>
+              <span data-i18n="enc_pill"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Poster grid - 6 posters -->
+        <div class="poster-grid">
+          <div class="poster">
+            <svg class="poster-bg" viewBox="0 0 100 150" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="p1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0a1628"/><stop offset="100%" stop-color="#1a3a6e"/></linearGradient></defs>
+              <rect width="100" height="150" fill="url(#p1)"/>
+              <circle cx="50" cy="65" r="35" fill="none" stroke="#378ADD" stroke-width="0.5" opacity="0.6"/>
+              <circle cx="50" cy="65" r="20" fill="rgba(56,138,221,0.2)"/>
+              <text x="50" y="70" text-anchor="middle" fill="white" font-size="20" opacity="0.9">🚀</text>
+              <rect x="5" y="125" width="90" height="20" fill="rgba(0,0,0,0.5)"/>
+              <text x="50" y="138" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif">Interstellar</text>
+            </svg>
+          </div>
+          <div class="poster">
+            <svg class="poster-bg" viewBox="0 0 100 150" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="p2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a0a2e"/><stop offset="100%" stop-color="#3d1a6b"/></linearGradient></defs>
+              <rect width="100" height="150" fill="url(#p2)"/>
+              <ellipse cx="50" cy="60" rx="40" ry="50" fill="rgba(83,74,183,0.3)"/>
+              <text x="50" y="70" text-anchor="middle" fill="white" font-size="22" opacity="0.9">🏜️</text>
+              <rect x="5" y="125" width="90" height="20" fill="rgba(0,0,0,0.5)"/>
+              <text x="50" y="138" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif">Dune 2</text>
+            </svg>
+          </div>
+          <div class="poster">
+            <svg class="poster-bg" viewBox="0 0 100 150" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="p3" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#0a1a0a"/><stop offset="100%" stop-color="#0d3b1a"/></linearGradient></defs>
+              <rect width="100" height="150" fill="url(#p3)"/>
+              <rect x="15" y="20" width="70" height="90" rx="3" fill="rgba(29,158,117,0.15)" stroke="rgba(29,158,117,0.3)" stroke-width="0.5"/>
+              <text x="50" y="72" text-anchor="middle" fill="white" font-size="22" opacity="0.9">🌊</text>
+              <rect x="5" y="125" width="90" height="20" fill="rgba(0,0,0,0.5)"/>
+              <text x="50" y="138" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif">Civil War</text>
+            </svg>
+          </div>
+          <div class="poster">
+            <svg class="poster-bg" viewBox="0 0 100 150" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="p4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a0c04"/><stop offset="100%" stop-color="#3b1e00"/></linearGradient></defs>
+              <rect width="100" height="150" fill="url(#p4)"/>
+              <circle cx="50" cy="55" r="30" fill="rgba(239,159,39,0.2)"/>
+              <text x="50" y="65" text-anchor="middle" fill="white" font-size="22" opacity="0.9">💣</text>
+              <rect x="5" y="125" width="90" height="20" fill="rgba(0,0,0,0.5)"/>
+              <text x="50" y="138" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif">Oppenheimer</text>
+            </svg>
+          </div>
+          <div class="poster">
+            <svg class="poster-bg" viewBox="0 0 100 150" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="p5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a0404"/><stop offset="100%" stop-color="#3b0a0a"/></linearGradient></defs>
+              <rect width="100" height="150" fill="url(#p5)"/>
+              <polygon points="50,20 80,60 70,100 50,115 30,100 20,60" fill="rgba(226,75,74,0.2)" stroke="rgba(226,75,74,0.4)" stroke-width="0.5"/>
+              <text x="50" y="72" text-anchor="middle" fill="white" font-size="22" opacity="0.9">⚔️</text>
+              <rect x="5" y="125" width="90" height="20" fill="rgba(0,0,0,0.5)"/>
+              <text x="50" y="138" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif">Gladiator II</text>
+            </svg>
+          </div>
+          <div class="poster">
+            <svg class="poster-bg" viewBox="0 0 100 150" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="p6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#041418"/><stop offset="100%" stop-color="#083040"/></linearGradient></defs>
+              <rect width="100" height="150" fill="url(#p6)"/>
+              <ellipse cx="50" cy="60" rx="35" ry="45" fill="rgba(56,138,221,0.15)"/>
+              <text x="50" y="70" text-anchor="middle" fill="white" font-size="22" opacity="0.9">🌌</text>
+              <rect x="5" y="125" width="90" height="20" fill="rgba(0,0,0,0.5)"/>
+              <text x="50" y="138" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif">Spaceman</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Continue watching -->
+        <div class="section-h">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="5" stroke="#8b949e" stroke-width="0.8"/><path d="M4 4L8 5.5L4 7Z" fill="#8b949e"/></svg>
+          <span data-i18n="cw_title"></span>
+        </div>
+        <div class="cw-row">
+          <div class="cw-card">
+            <div class="cw-thumb">
+              <svg class="cw-thumb-bg" viewBox="0 0 120 68" preserveAspectRatio="xMidYMid slice"><rect width="120" height="68" fill="#0d2840"/><rect x="10" y="8" width="100" height="52" rx="3" fill="#0a1f33" opacity="0.8"/><text x="60" y="38" text-anchor="middle" fill="#8b949e" font-size="20">🎬</text></svg>
+            </div>
+            <div class="cw-bar"><div class="cw-fill" style="width:68%"></div></div>
+            <div class="cw-info">
+              <div class="cw-title" data-i18n="cw1_title"></div>
+              <div class="cw-ep" data-i18n="cw1_ep"></div>
+            </div>
+          </div>
+          <div class="cw-card">
+            <div class="cw-thumb">
+              <svg class="cw-thumb-bg" viewBox="0 0 120 68" preserveAspectRatio="xMidYMid slice"><rect width="120" height="68" fill="#1a0d2e"/><circle cx="60" cy="34" r="28" fill="rgba(83,74,183,0.3)"/><text x="60" y="40" text-anchor="middle" fill="#8b949e" font-size="20">📺</text></svg>
+            </div>
+            <div class="cw-bar"><div class="cw-fill" style="width:12%"></div></div>
+            <div class="cw-info">
+              <div class="cw-title" data-i18n="cw2_title"></div>
+              <div class="cw-ep" data-i18n="cw2_ep"></div>
+            </div>
+          </div>
+          <div class="cw-card">
+            <div class="cw-thumb">
+              <svg class="cw-thumb-bg" viewBox="0 0 120 68" preserveAspectRatio="xMidYMid slice"><rect width="120" height="68" fill="#041810"/><rect x="5" y="5" width="110" height="58" rx="4" fill="rgba(29,158,117,0.15)"/><text x="60" y="40" text-anchor="middle" fill="#8b949e" font-size="20">🎵</text></svg>
+            </div>
+            <div class="cw-bar"><div class="cw-fill" style="width:45%"></div></div>
+            <div class="cw-info">
+              <div class="cw-title" data-i18n="cw3_title"></div>
+              <div class="cw-ep" data-i18n="cw3_ep"></div>
+            </div>
+          </div>
+          <div class="cw-card">
+            <div class="cw-thumb">
+              <svg class="cw-thumb-bg" viewBox="0 0 120 68" preserveAspectRatio="xMidYMid slice"><rect width="120" height="68" fill="#1a0a04"/><circle cx="60" cy="34" r="30" fill="rgba(239,159,39,0.2)"/><text x="60" y="40" text-anchor="middle" fill="#8b949e" font-size="20">🔖</text></svg>
+            </div>
+            <div class="cw-bar"><div class="cw-fill" style="width:100%"></div></div>
+            <div class="cw-info">
+              <div class="cw-title" data-i18n="cw4_title"></div>
+              <div class="cw-ep" data-i18n="cw4_ep"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat"><div class="stat-n">7</div><div class="stat-l" data-i18n="stat_types"></div></div>
+  <div class="stat"><div class="stat-n">Widevine</div><div class="stat-l" data-i18n="stat_drm"></div></div>
+  <div class="stat"><div class="stat-n">HLS·DASH</div><div class="stat-l" data-i18n="stat_transcode"></div></div>
+  <div class="stat"><div class="stat-n">5</div><div class="stat-l" data-i18n="stat_lang"></div></div>
+  <div class="stat"><div class="stat-n">0 bytes</div><div class="stat-l" data-i18n="stat_cloud"></div></div>
+</div>
+
+<!-- MEDIA TYPES -->
+<section class="media-types">
+  <p class="sec-tag" data-i18n="mt_tag"></p>
+  <h2 class="sec-h2" data-i18n="mt_h2"></h2>
+  <p class="sec-p" data-i18n="mt_p"></p>
+  <div class="type-grid">
+    <div class="type-card">
+      <div class="type-icon">🎬</div>
+      <div class="type-name" data-i18n="type_movie"></div>
+      <div class="type-desc" data-i18n="type_movie_desc"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">📺</div>
+      <div class="type-name" data-i18n="type_tv"></div>
+      <div class="type-desc" data-i18n="type_tv_desc"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">🎵</div>
+      <div class="type-name" data-i18n="type_music"></div>
+      <div class="type-desc" data-i18n="type_music_desc"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">🖼️</div>
+      <div class="type-name" data-i18n="type_photo"></div>
+      <div class="type-desc" data-i18n="type_photo_desc"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">📄</div>
+      <div class="type-name" data-i18n="type_doc"></div>
+      <div class="type-desc" data-i18n="type_doc_desc"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">🎞️</div>
+      <div class="type-name" data-i18n="type_other"></div>
+      <div class="type-desc" data-i18n="type_other_desc"></div>
+    </div>
+    <div class="type-card">
+      <div class="type-icon">📁</div>
+      <div class="type-name" data-i18n="type_file"></div>
+      <div class="type-desc" data-i18n="type_file_desc"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES DEEP -->
+<section class="features">
+  <p class="sec-tag" style="text-align:center;margin-bottom:10px;" data-i18n="feat_tag"></p>
+  <h2 class="sec-h2" data-i18n="feat_h2"></h2>
+  <p class="sec-p" data-i18n="feat_p"></p>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon fi-blue">🔍</div>
+      <div class="feat-h" data-i18n="feat1_h"></div>
+      <div class="feat-p" data-i18n="feat1_p"></div>
+      <div class="feat-tags">
+        <span class="tag">TMDB</span><span class="tag" data-i18n="tag_douban"></span><span class="tag">Bangumi</span><span class="tag" data-i18n="tag_ai"></span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon fi-purple">⚡</div>
+      <div class="feat-h" data-i18n="feat2_h"></div>
+      <div class="feat-p" data-i18n="feat2_p"></div>
+      <div class="feat-tags">
+        <span class="tag">HLS · DASH</span><span class="tag">4K HDR</span><span class="tag" data-i18n="tag_resume"></span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon fi-teal">🔐</div>
+      <div class="feat-h" data-i18n="feat3_h"></div>
+      <div class="feat-p" data-i18n="feat3_p"></div>
+      <div class="feat-tags">
+        <span class="tag">Widevine</span><span class="tag">FairPlay</span><span class="tag">HLS AES-128</span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon fi-amber">💬</div>
+      <div class="feat-h" data-i18n="feat4_h"></div>
+      <div class="feat-p" data-i18n="feat4_p"></div>
+      <div class="feat-tags">
+        <span class="tag">Whisper ASR</span><span class="tag">PGS OCR</span><span class="tag" data-i18n="tag_multi_audio"></span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon fi-red">👨‍👩‍👧</div>
+      <div class="feat-h" data-i18n="feat5_h"></div>
+      <div class="feat-p" data-i18n="feat5_p"></div>
+      <div class="feat-tags">
+        <span class="tag" data-i18n="tag_parental"></span><span class="tag" data-i18n="tag_acl"></span><span class="tag" data-i18n="tag_pin"></span>
+      </div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon fi-indigo">🤖</div>
+      <div class="feat-h" data-i18n="feat6_h"></div>
+      <div class="feat-p" data-i18n="feat6_p"></div>
+      <div class="feat-tags">
+        <span class="tag" data-i18n="tag_face"></span><span class="tag" data-i18n="tag_gps"></span><span class="tag" data-i18n="tag_ai_classify"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY BLOCK -->
+<div class="security-block">
+  <div class="sec-left">
+    <div class="sec-badge">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 0.5L10 2.5v4C10 8.5 8 9.5 5.5 10.5C3 9.5 1 8.5 1 6.5V2.5L5.5 0.5z" fill="#3BC49A"/></svg>
+      <span data-i18n="sec_badge"></span>
+    </div>
+    <div class="sec-h" data-i18n="sec_h"></div>
+    <div class="sec-body" data-i18n="sec_body"></div>
+    <div class="sec-items">
+      <div class="sec-item" data-i18n="sec_item1"></div>
+      <div class="sec-item" data-i18n="sec_item2"></div>
+      <div class="sec-item" data-i18n="sec_item3"></div>
+      <div class="sec-item" data-i18n="sec_item4"></div>
+      <div class="sec-item" data-i18n="sec_item5"></div>
+    </div>
+  </div>
+  <div class="sec-right">
+    <div class="shield-big">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <path d="M20 3L35 9v12C35 28 28 33 20 37C12 33 5 28 5 21V9L20 3z" fill="rgba(24,95,165,0.3)" stroke="rgba(56,138,221,0.5)" stroke-width="1.5"/>
+        <rect x="15" y="22" width="10" height="8" rx="2.5" fill="#378ADD" opacity="0.8"/>
+        <path d="M17 22V18Q17 14 20 14Q23 14 23 18V22" fill="none" stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="shield-num">9527</div>
+      <div class="shield-sub" data-i18n="shield_sub"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE -->
+<section class="compare">
+  <p class="sec-tag" data-i18n="cmp_tag"></p>
+  <h2 class="sec-h2" data-i18n="cmp_h2"></h2>
+  <p class="sec-p" data-i18n="cmp_p"></p>
+  <table class="cmp">
+    <thead>
+      <tr>
+        <th style="width:28%;text-align:left;" data-i18n="cmp_col_feat"></th>
+        <th class="th9">🔐 9527</th>
+        <th style="color:#8b949e;">Plex</th>
+        <th style="color:#8b949e;">Emby</th>
+        <th style="color:#8b949e;">Jellyfin</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td data-i18n="cmp_r1"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cp" data-i18n="partial"></span></td><td><span class="ck">✓</span></td></tr>
+      <tr><td data-i18n="cmp_r2"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+      <tr><td data-i18n="cmp_r3"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cp" data-i18n="paid"></span></td><td><span class="cp" data-i18n="paid"></span></td><td><span class="cx">✕</span></td></tr>
+      <tr><td data-i18n="cmp_r4"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cp" data-i18n="paid"></span></td><td><span class="cp" data-i18n="paid"></span></td><td><span class="ck">✓</span></td></tr>
+      <tr><td data-i18n="cmp_r5"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td></tr>
+      <tr><td data-i18n="cmp_r6"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td></tr>
+      <tr><td data-i18n="cmp_r7"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td></tr>
+      <tr><td data-i18n="cmp_r8"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td></tr>
+      <tr><td data-i18n="cmp_r9"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td></tr>
+      <tr><td data-i18n="cmp_r10"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cp" data-i18n="paid"></span></td><td><span class="cp" data-i18n="paid"></span></td><td><span class="cp" data-i18n="limited"></span></td></tr>
+      <tr><td data-i18n="cmp_r11"></td><td class="td9"><span class="ck">✓</span></td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="cta-h" data-i18n="cta_h"></h2>
+  <p class="cta-p" data-i18n="cta_p"></p>
+  <div class="cta-btns">
+    <a class="btn-cta" href="#" data-i18n="cta_btn1"></a>
+    <a class="btn-cta-o" href="#" data-i18n="cta_btn2"></a>
+  </div>
+  <p class="cta-note" data-i18n="cta_note"></p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="ft-brand">9527</span>
+  <span class="ft-copy" data-i18n="footer_copy"></span>
+  <div class="ft-links">
+    <a href="#">GitHub</a>
+    <a href="#" data-i18n="ft_docs"></a>
+    <a href="#" data-i18n="ft_community"></a>
+    <a href="#" data-i18n="ft_changelog"></a>
+    <a href="#" data-i18n="ft_privacy"></a>
+  </div>
+</footer>
+
+<script>
+// ─── I18N DATA ───────────────────────────────────────────────────
+const i18n = {
+  "zh-CN": {
+    // Nav
+    nav_features: "功能",
+    nav_media: "媒体类型",
+    nav_security: "安全",
+    nav_compare: "对比",
+    nav_docs: "文档",
+    nav_deploy: "立即部署",
+    // Hero
+    hero_eyebrow: "完全本地部署 · 零云端依赖 · 家庭级隐私保护",
+    hero_title_1: "你的影库，",
+    hero_title_2: "只属于你",
+    hero_sub: "支持电影、剧集、音乐、图片、文档七大媒体类型。\nDRM 加密保护，HLS 自适应转码，完全运行在你自己的设备上。",
+    hero_btn_deploy: "立即免费自建 →",
+    hero_btn_demo: "▶ 观看 Demo",
+    trust_drm: "DRM 内容保护",
+    trust_zero: "零数据上传",
+    trust_opensource: "100% 开源",
+    trust_lang: "多语言 · 5 种语言",
+    trust_cross: "跨平台客户端",
+    // Window
+    win_addr: "🔒  9527.local — 已建立安全连接",
+    win_lock: "加密传输中",
+    // Sidebar
+    sb_search: "搜索…",
+    sb_home: "首页",
+    sb_fav: "我的收藏",
+    sb_section_media: "我的媒体",
+    sb_movies: "电影",
+    sb_tv: "电视节目",
+    sb_anime: "动漫",
+    sb_music: "音乐",
+    sb_photos: "照片",
+    sb_docs: "文档",
+    sb_section_admin: "管理",
+    sb_settings: "系统选项",
+    sb_console: "控制台",
+    // Main
+    main_library: "媒体库",
+    sort_date: "按发行日期 ▾",
+    enc_pill: "已加密",
+    cw_title: "继续观看",
+    cw1_title: "去有风的地方 第39集",
+    cw1_ep: "已看完 · 播放 0 次",
+    cw2_title: "你别嗤了 · 第3集",
+    cw2_ep: "0% · 播放 3 次",
+    cw3_title: "去有风的地方 第30集",
+    cw3_ep: "播放 2 次",
+    cw4_title: "去有风的地方 第29集",
+    cw4_ep: "已看完 · 播放 1 次",
+    // Stats
+    stat_types: "媒体类型全覆盖",
+    stat_drm: "DRM 加密支持",
+    stat_transcode: "自适应码率转码",
+    stat_lang: "界面语言支持",
+    stat_cloud: "数据上传到云端",
+    // Media types
+    mt_tag: "全媒体覆盖",
+    mt_h2: "一个服务器，管理全家媒体",
+    mt_p: "7 种媒体类型，每种都有专属浏览和播放界面，你不需要再装第二个软件。",
+    type_movie: "电影",
+    type_movie_desc: "TMDB/豆瓣刮削，海报/背景图，4K HDR 转码",
+    type_tv: "剧集 · 动漫",
+    type_tv_desc: "S01E01 自动识别，季集聚合，TVDB/Bangumi",
+    type_music: "音乐",
+    type_music_desc: "专辑·艺人·流派，歌词识别，全局播放器",
+    type_photo: "图片",
+    type_photo_desc: "时间轴·人脸聚类·GPS地点，AI 智能分类",
+    type_doc: "文档",
+    type_doc_desc: "PDF·EPUB·Office 在线预览，阅读进度同步",
+    type_other: "其他影片",
+    type_other_desc: "家庭视频、教程等，通用文件浏览与播放",
+    type_file: "文件管理",
+    type_file_desc: "分片上传·目录创建·批量打包下载",
+    // Features
+    feat_tag: "核心能力",
+    feat_h2: "不只是「播放器」",
+    feat_p: "9527 是完整的家庭媒体中心，从入库到播放，每个环节都已就位。",
+    feat1_h: "智能元数据刮削",
+    feat1_p: "支持 TMDB、TVDB、豆瓣、Bangumi、OMDb 五大数据源，AI 大模型兜底。自动获取海报、简介、演员信息，本地落盘保存。",
+    feat2_h: "硬件加速转码",
+    feat2_p: "JIT 即时转码，支持 Intel QSV、NVIDIA NVENC、Apple VideoToolbox。HLS/DASH 自适应多码率，进度条预览缩略图，4K HDR 流畅串流。",
+    feat3_h: "DRM 内容保护",
+    feat3_p: "支持 Widevine、FairPlay、PowerDRM、HLS AES-128 全链路。CMAF fMP4 打包，许可证端点内置，审计日志完整记录。",
+    feat4_h: "字幕与多音轨",
+    feat4_p: "自动提取内嵌字幕，识别同目录 sidecar 文件（srt/ass/vtt 等）。支持 Whisper ASR 语音识别字幕、PGS 图形字幕 OCR，音轨预提取降低成本。",
+    feat5_h: "家庭权限管理",
+    feat5_p: "多用户角色体系，媒体库级 ACL 精细控制。家长控制：内容分级 + PIN 码 + 时段窗口 + 每日计划，适合有孩子的家庭。",
+    feat6_h: "AI 图片分析",
+    feat6_p: "InsightFace 人脸识别与聚类，自动按人物整理照片。GPS 逆地理编码，ONNX MobileNet 场景分类，智能相册自动生成。",
+    tag_douban: "豆瓣",
+    tag_ai: "AI 兜底",
+    tag_resume: "断点续播",
+    tag_multi_audio: "多音轨",
+    tag_parental: "家长控制",
+    tag_acl: "库级 ACL",
+    tag_pin: "PIN 锁",
+    tag_face: "人脸聚类",
+    tag_gps: "GPS 地点",
+    tag_ai_classify: "AI 分类",
+    // Security
+    sec_badge: "隐私保护是第一优先级",
+    sec_h: "你的密钥，\n只有你知道",
+    sec_body: "9527 不需要你注册账号，不需要连接任何云服务，所有数据都在你自己的设备上运行。这不是功能卖点，这是架构原则。",
+    sec_item1: "JWT 会话认证，OAuth 客户端凭证，支持外部播放器集成",
+    sec_item2: "完整访问日志与 401/403 权限拦截，每次访问都可追溯",
+    sec_item3: "DRM 许可证审计接口，内容授权链完全可控",
+    sec_item4: "上传文件可选择性清理源文件，本地存储安全受控",
+    sec_item5: "文件实时监控（fsnotify），变更即时感知无延迟",
+    shield_sub: "就我自己",
+    // Compare
+    cmp_tag: "产品对比",
+    cmp_h2: "为什么选择 9527？",
+    cmp_p: "隐私不是附加功能，是架构的出发点。",
+    cmp_col_feat: "功能 / 特性",
+    cmp_r1: "完全本地部署 · 无云端依赖",
+    cmp_r2: "无需注册账号",
+    cmp_r3: "DRM 内容保护（Widevine/FairPlay）",
+    cmp_r4: "硬件加速转码（免费）",
+    cmp_r5: "AI 刮削兜底（LLM）",
+    cmp_r6: "人脸识别·相册聚类",
+    cmp_r7: "Whisper ASR 字幕识别",
+    cmp_r8: "文档在线阅读（PDF·EPUB·Office）",
+    cmp_r9: "豆瓣 · Bangumi 数据源",
+    cmp_r10: "家长控制 + 时段窗口",
+    cmp_r11: "完全开源",
+    partial: "部分",
+    paid: "付费版",
+    limited: "有限",
+    // CTA
+    cta_h: "准备好把影库\n带回自己手中了吗？",
+    cta_p: "Docker 一键部署，5 分钟完成安装。永久免费，数据永远只在你的设备上。",
+    cta_btn1: "立即自建 9527 →",
+    cta_btn2: "查看部署文档",
+    cta_note: "支持 Docker · Synology NAS · QNAP · 树莓派 · 家庭服务器 · x86 / ARM64",
+    // Footer
+    footer_copy: "你的影库，只属于你 · Your media. Your rules. Your 9527.",
+    ft_docs: "文档",
+    ft_community: "社区",
+    ft_changelog: "更新日志",
+    ft_privacy: "隐私政策",
+  },
+
+  "zh-TW": {
+    nav_features: "功能",
+    nav_media: "媒體類型",
+    nav_security: "安全",
+    nav_compare: "對比",
+    nav_docs: "文檔",
+    nav_deploy: "立即部署",
+    hero_eyebrow: "完全本地部署 · 零雲端依賴 · 家庭級隱私保護",
+    hero_title_1: "你的影庫，",
+    hero_title_2: "只屬於你",
+    hero_sub: "支援電影、劇集、音樂、圖片、文件七大媒體類型。\nDRM 加密保護，HLS 自適應轉碼，完全運行在你自己的設備上。",
+    hero_btn_deploy: "立即免費自建 →",
+    hero_btn_demo: "▶ 觀看 Demo",
+    trust_drm: "DRM 內容保護",
+    trust_zero: "零資料上傳",
+    trust_opensource: "100% 開源",
+    trust_lang: "多語言 · 5 種語言",
+    trust_cross: "跨平台客戶端",
+    win_addr: "🔒  9527.local — 已建立安全連接",
+    win_lock: "加密傳輸中",
+    sb_search: "搜尋…",
+    sb_home: "首頁",
+    sb_fav: "我的收藏",
+    sb_section_media: "我的媒體",
+    sb_movies: "電影",
+    sb_tv: "電視節目",
+    sb_anime: "動漫",
+    sb_music: "音樂",
+    sb_photos: "照片",
+    sb_docs: "文件",
+    sb_section_admin: "管理",
+    sb_settings: "系統選項",
+    sb_console: "控制台",
+    main_library: "媒體庫",
+    sort_date: "按發行日期 ▾",
+    enc_pill: "已加密",
+    cw_title: "繼續觀看",
+    cw1_title: "去有風的地方 第39集",
+    cw1_ep: "已看完 · 播放 0 次",
+    cw2_title: "你別嗤了 · 第3集",
+    cw2_ep: "0% · 播放 3 次",
+    cw3_title: "去有風的地方 第30集",
+    cw3_ep: "播放 2 次",
+    cw4_title: "去有風的地方 第29集",
+    cw4_ep: "已看完 · 播放 1 次",
+    stat_types: "媒體類型全覆蓋",
+    stat_drm: "DRM 加密支援",
+    stat_transcode: "自適應碼率轉碼",
+    stat_lang: "介面語言支援",
+    stat_cloud: "資料上傳到雲端",
+    mt_tag: "全媒體覆蓋",
+    mt_h2: "一個伺服器，管理全家媒體",
+    mt_p: "7 種媒體類型，每種都有專屬瀏覽和播放介面，你不需要再裝第二個軟體。",
+    type_movie: "電影",
+    type_movie_desc: "TMDB/豆瓣刮削，海報/背景圖，4K HDR 轉碼",
+    type_tv: "劇集 · 動漫",
+    type_tv_desc: "S01E01 自動識別，季集聚合，TVDB/Bangumi",
+    type_music: "音樂",
+    type_music_desc: "專輯·藝人·流派，歌詞識別，全域播放器",
+    type_photo: "圖片",
+    type_photo_desc: "時間軸·人臉聚類·GPS地點，AI 智慧分類",
+    type_doc: "文件",
+    type_doc_desc: "PDF·EPUB·Office 線上預覽，閱讀進度同步",
+    type_other: "其他影片",
+    type_other_desc: "家庭影片、教學等，通用文件瀏覽與播放",
+    type_file: "檔案管理",
+    type_file_desc: "分片上傳·目錄建立·批量打包下載",
+    feat_tag: "核心能力",
+    feat_h2: "不只是「播放器」",
+    feat_p: "9527 是完整的家庭媒體中心，從入庫到播放，每個環節都已就位。",
+    feat1_h: "智慧元數據刮削",
+    feat1_p: "支援 TMDB、TVDB、豆瓣、Bangumi、OMDb 五大數據源，AI 大模型兜底。自動獲取海報、簡介、演員資訊，本地落盤保存。",
+    feat2_h: "硬體加速轉碼",
+    feat2_p: "JIT 即時轉碼，支援 Intel QSV、NVIDIA NVENC、Apple VideoToolbox。HLS/DASH 自適應多碼率，進度條預覽縮圖，4K HDR 流暢串流。",
+    feat3_h: "DRM 內容保護",
+    feat3_p: "支援 Widevine、FairPlay、PowerDRM、HLS AES-128 全鏈路。CMAF fMP4 打包，授權端點內建，稽核日誌完整記錄。",
+    feat4_h: "字幕與多音軌",
+    feat4_p: "自動提取內嵌字幕，識別同目錄 sidecar 檔（srt/ass/vtt 等）。支援 Whisper ASR 語音識別字幕、PGS 圖形字幕 OCR，音軌預提取降低成本。",
+    feat5_h: "家庭權限管理",
+    feat5_p: "多使用者角色體系，媒體庫級 ACL 精細控制。家長控制：內容分級 + PIN 碼 + 時段視窗 + 每日計畫，適合有孩子的家庭。",
+    feat6_h: "AI 圖片分析",
+    feat6_p: "InsightFace 人臉識別與聚類，自動按人物整理照片。GPS 逆地理編碼，ONNX MobileNet 場景分類，智慧相冊自動生成。",
+    tag_douban: "豆瓣",
+    tag_ai: "AI 兜底",
+    tag_resume: "斷點續播",
+    tag_multi_audio: "多音軌",
+    tag_parental: "家長控制",
+    tag_acl: "庫級 ACL",
+    tag_pin: "PIN 鎖",
+    tag_face: "人臉聚類",
+    tag_gps: "GPS 地點",
+    tag_ai_classify: "AI 分類",
+    sec_badge: "隱私保護是第一優先級",
+    sec_h: "你的金鑰，\n只有你知道",
+    sec_body: "9527 不需要你註冊帳號，不需要連接任何雲端服務，所有資料都在你自己的設備上運行。這不是功能賣點，這是架構原則。",
+    sec_item1: "JWT 會話認證，OAuth 客戶端憑證，支援外部播放器整合",
+    sec_item2: "完整存取日誌與 401/403 權限攔截，每次存取都可追溯",
+    sec_item3: "DRM 授權審計介面，內容授權鏈完全可控",
+    sec_item4: "上傳檔案可選擇性清理源檔，本地儲存安全受控",
+    sec_item5: "檔案即時監控（fsnotify），變更即時感知無延遲",
+    shield_sub: "只屬於我",
+    cmp_tag: "產品對比",
+    cmp_h2: "為什麼選擇 9527？",
+    cmp_p: "隱私不是附加功能，是架構的出發點。",
+    cmp_col_feat: "功能 / 特性",
+    cmp_r1: "完全本地部署 · 無雲端依賴",
+    cmp_r2: "無需註冊帳號",
+    cmp_r3: "DRM 內容保護（Widevine/FairPlay）",
+    cmp_r4: "硬體加速轉碼（免費）",
+    cmp_r5: "AI 刮削兜底（LLM）",
+    cmp_r6: "人臉識別·相冊聚類",
+    cmp_r7: "Whisper ASR 字幕識別",
+    cmp_r8: "文件線上閱讀（PDF·EPUB·Office）",
+    cmp_r9: "豆瓣 · Bangumi 數據源",
+    cmp_r10: "家長控制 + 時段視窗",
+    cmp_r11: "完全開源",
+    partial: "部分",
+    paid: "付費版",
+    limited: "有限",
+    cta_h: "準備好把影庫\n帶回自己手中了嗎？",
+    cta_p: "Docker 一鍵部署，5 分鐘完成安裝。永久免費，資料永遠只在你的設備上。",
+    cta_btn1: "立即自建 9527 →",
+    cta_btn2: "查看部署文檔",
+    cta_note: "支援 Docker · Synology NAS · QNAP · 樹莓派 · 家庭伺服器 · x86 / ARM64",
+    footer_copy: "你的影庫，只屬於你 · Your media. Your rules. Your 9527.",
+    ft_docs: "文檔",
+    ft_community: "社群",
+    ft_changelog: "更新日誌",
+    ft_privacy: "隱私政策",
+  },
+
+  "en": {
+    nav_features: "Features",
+    nav_media: "Media Types",
+    nav_security: "Security",
+    nav_compare: "Compare",
+    nav_docs: "Docs",
+    nav_deploy: "Deploy Now",
+    hero_eyebrow: "Fully self-hosted · Zero cloud dependency · Family-grade privacy",
+    hero_title_1: "Your media,",
+    hero_title_2: " yours alone.",
+    hero_sub: "Movies, TV, anime, music, photos, and documents — all in one place. DRM protection, adaptive HLS transcoding, running entirely on your own hardware.",
+    hero_btn_deploy: "Self-host for Free →",
+    hero_btn_demo: "▶ Watch Demo",
+    trust_drm: "DRM Protection",
+    trust_zero: "Zero Cloud Upload",
+    trust_opensource: "100% Open Source",
+    trust_lang: "5 Languages",
+    trust_cross: "Cross-platform",
+    win_addr: "🔒  9527.local — Secure Connection Established",
+    win_lock: "Encrypted",
+    sb_search: "Search…",
+    sb_home: "Home",
+    sb_fav: "Favorites",
+    sb_section_media: "My Media",
+    sb_movies: "Movies",
+    sb_tv: "TV Shows",
+    sb_anime: "Anime",
+    sb_music: "Music",
+    sb_photos: "Photos",
+    sb_docs: "Documents",
+    sb_section_admin: "Admin",
+    sb_settings: "System Options",
+    sb_console: "Dashboard",
+    main_library: "Library",
+    sort_date: "By Release Date ▾",
+    enc_pill: "Encrypted",
+    cw_title: "Continue Watching",
+    cw1_title: "Where the Wind Blows EP39",
+    cw1_ep: "Finished · 0 plays",
+    cw2_title: "Drama Series · EP3",
+    cw2_ep: "0% · 3 plays",
+    cw3_title: "Where the Wind Blows EP30",
+    cw3_ep: "2 plays",
+    cw4_title: "Where the Wind Blows EP29",
+    cw4_ep: "Finished · 1 play",
+    stat_types: "Media Types Covered",
+    stat_drm: "DRM Encryption",
+    stat_transcode: "Adaptive Bitrate",
+    stat_lang: "UI Languages",
+    stat_cloud: "Data Uploaded to Cloud",
+    mt_tag: "All Media, One Place",
+    mt_h2: "One Server to Rule Your Family Media",
+    mt_p: "7 media types, each with a dedicated browsing and playback interface. No second app needed.",
+    type_movie: "Movies",
+    type_movie_desc: "TMDB scraping, posters/backdrops, 4K HDR transcoding",
+    type_tv: "TV · Anime",
+    type_tv_desc: "S01E01 auto-detect, season grouping, TVDB/Bangumi",
+    type_music: "Music",
+    type_music_desc: "Albums, artists, genres, lyrics, global player",
+    type_photo: "Photos",
+    type_photo_desc: "Timeline, face clustering, GPS location, AI classification",
+    type_doc: "Documents",
+    type_doc_desc: "PDF, EPUB, Office online preview, reading progress sync",
+    type_other: "Home Videos",
+    type_other_desc: "Family videos, tutorials, generic file browser & player",
+    type_file: "File Manager",
+    type_file_desc: "Chunked upload, folder creation, batch download",
+    feat_tag: "Core Capabilities",
+    feat_h2: "More than a media player",
+    feat_p: "9527 is a complete home media center. Every step — from ingest to playback — is covered.",
+    feat1_h: "Smart Metadata Scraping",
+    feat1_p: "Five data sources: TMDB, TVDB, Douban, Bangumi, OMDb, with AI LLM fallback. Auto-fetches posters, overviews, and cast info, stored locally.",
+    feat2_h: "Hardware-Accelerated Transcoding",
+    feat2_p: "JIT transcoding with Intel QSV, NVIDIA NVENC, Apple VideoToolbox. HLS/DASH adaptive multi-bitrate, sprite thumbnail previews, smooth 4K HDR streaming.",
+    feat3_h: "DRM Content Protection",
+    feat3_p: "Full pipeline: Widevine, FairPlay, PowerDRM, HLS AES-128. CMAF fMP4 packaging, built-in license endpoint, complete audit logging.",
+    feat4_h: "Subtitles & Multi-Track Audio",
+    feat4_p: "Auto-extract embedded subtitles, detect sidecar files (srt/ass/vtt). Whisper ASR speech-to-subtitle, PGS graphic subtitle OCR, audio track pre-extraction.",
+    feat5_h: "Family Access Control",
+    feat5_p: "Multi-user roles, library-level ACL. Parental controls: content rating + PIN + time window + daily schedule — built for families with kids.",
+    feat6_h: "AI Photo Intelligence",
+    feat6_p: "InsightFace face recognition & clustering for auto-organizing by person. GPS reverse geocoding, ONNX MobileNet scene classification, smart albums.",
+    tag_douban: "Douban",
+    tag_ai: "AI Fallback",
+    tag_resume: "Resume Playback",
+    tag_multi_audio: "Multi-Audio",
+    tag_parental: "Parental Controls",
+    tag_acl: "Library ACL",
+    tag_pin: "PIN Lock",
+    tag_face: "Face Clustering",
+    tag_gps: "GPS Location",
+    tag_ai_classify: "AI Classify",
+    sec_badge: "Privacy is the first priority",
+    sec_h: "Your keys.\nOnly yours.",
+    sec_body: "9527 requires no account registration and no cloud service connection. All data runs on your own hardware. This isn't a feature — it's an architectural principle.",
+    sec_item1: "JWT session auth, OAuth client credentials, external player integration",
+    sec_item2: "Full access logs with 401/403 interception — every access is traceable",
+    sec_item3: "DRM license audit API — complete control over content authorization chain",
+    sec_item4: "Uploaded files can optionally purge source after packaging",
+    sec_item5: "Real-time file monitoring (fsnotify) — instant change detection, zero delay",
+    shield_sub: "Just me",
+    cmp_tag: "Product Comparison",
+    cmp_h2: "Why choose 9527?",
+    cmp_p: "Privacy isn't a feature — it's where the architecture starts.",
+    cmp_col_feat: "Feature",
+    cmp_r1: "Fully self-hosted · No cloud dependency",
+    cmp_r2: "No account required",
+    cmp_r3: "DRM protection (Widevine / FairPlay)",
+    cmp_r4: "Hardware transcoding (free)",
+    cmp_r5: "AI scraping fallback (LLM)",
+    cmp_r6: "Face recognition & photo clustering",
+    cmp_r7: "Whisper ASR subtitle generation",
+    cmp_r8: "Document reader (PDF · EPUB · Office)",
+    cmp_r9: "Douban · Bangumi data sources",
+    cmp_r10: "Parental controls + time windows",
+    cmp_r11: "Fully open source",
+    partial: "Partial",
+    paid: "Paid",
+    limited: "Limited",
+    cta_h: "Ready to take your\nmedia library back?",
+    cta_p: "One Docker command. Running in 5 minutes. Free forever. Your data stays on your device.",
+    cta_btn1: "Self-host 9527 →",
+    cta_btn2: "View Deployment Docs",
+    cta_note: "Supports Docker · Synology NAS · QNAP · Raspberry Pi · Home Server · x86 / ARM64",
+    footer_copy: "Your media, yours alone. · Your media. Your rules. Your 9527.",
+    ft_docs: "Docs",
+    ft_community: "Community",
+    ft_changelog: "Changelog",
+    ft_privacy: "Privacy Policy",
+  },
+
+  "ja": {
+    nav_features: "機能",
+    nav_media: "メディアタイプ",
+    nav_security: "セキュリティ",
+    nav_compare: "比較",
+    nav_docs: "ドキュメント",
+    nav_deploy: "今すぐデプロイ",
+    hero_eyebrow: "完全セルフホスト · ゼロクラウド依存 · 家族レベルのプライバシー",
+    hero_title_1: "あなたのメディア、",
+    hero_title_2: "あなただけのもの",
+    hero_sub: "映画・ドラマ・アニメ・音楽・写真・ドキュメント、7つのメディアタイプをサポート。\nDRM暗号化保護、HLS適応型トランスコード、完全に自分のデバイスで動作。",
+    hero_btn_deploy: "無料でセルフホスト →",
+    hero_btn_demo: "▶ デモを見る",
+    trust_drm: "DRM コンテンツ保護",
+    trust_zero: "クラウドへの転送ゼロ",
+    trust_opensource: "100% オープンソース",
+    trust_lang: "5言語対応",
+    trust_cross: "クロスプラットフォーム",
+    win_addr: "🔒  9527.local — セキュア接続確立済み",
+    win_lock: "暗号化中",
+    sb_search: "検索…",
+    sb_home: "ホーム",
+    sb_fav: "お気に入り",
+    sb_section_media: "マイメディア",
+    sb_movies: "映画",
+    sb_tv: "テレビ番組",
+    sb_anime: "アニメ",
+    sb_music: "音楽",
+    sb_photos: "写真",
+    sb_docs: "ドキュメント",
+    sb_section_admin: "管理",
+    sb_settings: "システム設定",
+    sb_console: "コンソール",
+    main_library: "ライブラリ",
+    sort_date: "公開日順 ▾",
+    enc_pill: "暗号化済み",
+    cw_title: "続きを見る",
+    cw1_title: "風が通り過ぎる場所 第39話",
+    cw1_ep: "視聴完了 · 再生 0回",
+    cw2_title: "ドラマシリーズ · 第3話",
+    cw2_ep: "0% · 再生 3回",
+    cw3_title: "風が通り過ぎる場所 第30話",
+    cw3_ep: "再生 2回",
+    cw4_title: "風が通り過ぎる場所 第29話",
+    cw4_ep: "視聴完了 · 再生 1回",
+    stat_types: "メディアタイプ完全対応",
+    stat_drm: "DRM 暗号化サポート",
+    stat_transcode: "アダプティブビットレート",
+    stat_lang: "UI言語サポート",
+    stat_cloud: "クラウドへのデータ転送",
+    mt_tag: "全メディア対応",
+    mt_h2: "1台のサーバーで家族全員のメディアを管理",
+    mt_p: "7種類のメディアタイプ、それぞれ専用の閲覧・再生インターフェース。2つ目のアプリは不要です。",
+    type_movie: "映画",
+    type_movie_desc: "TMDBスクレイピング、ポスター/背景、4K HDRトランスコード",
+    type_tv: "ドラマ・アニメ",
+    type_tv_desc: "S01E01自動認識、シーズン集約、TVDB/Bangumi",
+    type_music: "音楽",
+    type_music_desc: "アルバム・アーティスト・ジャンル、歌詞認識、グローバルプレーヤー",
+    type_photo: "写真",
+    type_photo_desc: "タイムライン・顔クラスタリング・GPS場所、AI分類",
+    type_doc: "ドキュメント",
+    type_doc_desc: "PDF・EPUB・Officeオンラインプレビュー、読書進捗同期",
+    type_other: "ホームビデオ",
+    type_other_desc: "家族の動画、チュートリアルなど、汎用ファイルブラウザ",
+    type_file: "ファイル管理",
+    type_file_desc: "チャンクアップロード・ディレクトリ作成・一括ダウンロード",
+    feat_tag: "コア機能",
+    feat_h2: "ただの「プレーヤー」ではない",
+    feat_p: "9527 は完全なホームメディアセンター。取り込みから再生まで、すべての工程をカバー。",
+    feat1_h: "スマートメタデータスクレイピング",
+    feat1_p: "TMDB、TVDB、豆瓣、Bangumi、OMDb の5つのデータソース、AIバックアップ付き。ポスター・あらすじ・キャスト情報を自動取得、ローカル保存。",
+    feat2_h: "ハードウェアアクセラレーション",
+    feat2_p: "JITトランスコード、Intel QSV・NVIDIA NVENC・Apple VideoToolbox対応。HLS/DASHアダプティブマルチビットレート、シークサムネイル、4K HDRスムーズストリーミング。",
+    feat3_h: "DRM コンテンツ保護",
+    feat3_p: "Widevine、FairPlay、PowerDRM、HLS AES-128 フルパイプライン。CMAF fMP4パッケージング、ライセンスエンドポイント内蔵、完全な監査ログ。",
+    feat4_h: "字幕とマルチオーディオ",
+    feat4_p: "埋め込み字幕の自動抽出、サイドカーファイル（srt/ass/vtt）認識。Whisper ASR音声字幕、PGS OCR対応。",
+    feat5_h: "ファミリーアクセス管理",
+    feat5_p: "マルチユーザーロール体系、ライブラリレベルACL。ペアレンタルコントロール：コンテンツレーティング + PIN + 時間枠 + 日次スケジュール。",
+    feat6_h: "AI 写真分析",
+    feat6_p: "InsightFace顔認識・クラスタリングで人物別整理。GPS逆ジオコーディング、ONNX MobileNetシーン分類、スマートアルバム自動生成。",
+    tag_douban: "豆瓣",
+    tag_ai: "AIバックアップ",
+    tag_resume: "レジューム再生",
+    tag_multi_audio: "マルチオーディオ",
+    tag_parental: "ペアレンタル管理",
+    tag_acl: "ライブラリACL",
+    tag_pin: "PINロック",
+    tag_face: "顔クラスタリング",
+    tag_gps: "GPS場所",
+    tag_ai_classify: "AI分類",
+    sec_badge: "プライバシー保護が最優先",
+    sec_h: "あなたの鍵は、\nあなただけが知っている",
+    sec_body: "9527 はアカウント登録不要、クラウド接続不要。すべてのデータはあなた自身のデバイスで動作。これは機能ではなく、アーキテクチャの原則です。",
+    sec_item1: "JWTセッション認証、OAuthクライアント認証、外部プレーヤー統合対応",
+    sec_item2: "完全なアクセスログと401/403権限インターセプト、全アクセスが追跡可能",
+    sec_item3: "DRMライセンス監査API、コンテンツ認証チェーンを完全制御",
+    sec_item4: "アップロードファイルのソースを選択的に削除可能、ローカルストレージ安全管理",
+    sec_item5: "ファイルリアルタイム監視（fsnotify）、変更即時検知、遅延ゼロ",
+    shield_sub: "自分だけのもの",
+    cmp_tag: "製品比較",
+    cmp_h2: "なぜ9527を選ぶのか？",
+    cmp_p: "プライバシーは追加機能ではなく、アーキテクチャの出発点です。",
+    cmp_col_feat: "機能 / 特徴",
+    cmp_r1: "完全セルフホスト · クラウド依存なし",
+    cmp_r2: "アカウント不要",
+    cmp_r3: "DRM保護（Widevine/FairPlay）",
+    cmp_r4: "ハードウェアトランスコード（無料）",
+    cmp_r5: "AIスクレイピングバックアップ（LLM）",
+    cmp_r6: "顔認識・フォトクラスタリング",
+    cmp_r7: "Whisper ASR 字幕生成",
+    cmp_r8: "ドキュメントリーダー（PDF・EPUB・Office）",
+    cmp_r9: "豆瓣 · Bangumi データソース",
+    cmp_r10: "ペアレンタルコントロール + 時間枠",
+    cmp_r11: "完全オープンソース",
+    partial: "一部",
+    paid: "有料",
+    limited: "制限あり",
+    cta_h: "メディアライブラリを\n自分の手に取り戻しませんか？",
+    cta_p: "Docker 1コマンドでデプロイ、5分でセットアップ完了。永久無料、データは常にあなたのデバイスのみ。",
+    cta_btn1: "9527 をセルフホスト →",
+    cta_btn2: "デプロイドキュメントを見る",
+    cta_note: "Docker · Synology NAS · QNAP · Raspberry Pi · ホームサーバー · x86 / ARM64 対応",
+    footer_copy: "あなたのメディア、あなただけのもの · Your media. Your rules. Your 9527.",
+    ft_docs: "ドキュメント",
+    ft_community: "コミュニティ",
+    ft_changelog: "更新履歴",
+    ft_privacy: "プライバシーポリシー",
+  },
+
+  "ko": {
+    nav_features: "기능",
+    nav_media: "미디어 타입",
+    nav_security: "보안",
+    nav_compare: "비교",
+    nav_docs: "문서",
+    nav_deploy: "지금 배포",
+    hero_eyebrow: "완전 셀프호스팅 · 클라우드 의존 없음 · 가족 수준 프라이버시",
+    hero_title_1: "나만의 미디어 라이브러리,",
+    hero_title_2: "오직 나만을 위한",
+    hero_sub: "영화, 드라마, 애니메이션, 음악, 사진, 문서 7가지 미디어 타입 지원.\nDRM 암호화 보호, HLS 적응형 트랜스코딩, 완전히 자신의 기기에서 실행.",
+    hero_btn_deploy: "무료로 셀프호스팅 →",
+    hero_btn_demo: "▶ 데모 보기",
+    trust_drm: "DRM 콘텐츠 보호",
+    trust_zero: "클라우드 업로드 0",
+    trust_opensource: "100% 오픈소스",
+    trust_lang: "5개 언어",
+    trust_cross: "크로스플랫폼",
+    win_addr: "🔒  9527.local — 보안 연결 확인됨",
+    win_lock: "암호화 중",
+    sb_search: "검색…",
+    sb_home: "홈",
+    sb_fav: "즐겨찾기",
+    sb_section_media: "내 미디어",
+    sb_movies: "영화",
+    sb_tv: "TV 프로그램",
+    sb_anime: "애니메이션",
+    sb_music: "음악",
+    sb_photos: "사진",
+    sb_docs: "문서",
+    sb_section_admin: "관리",
+    sb_settings: "시스템 설정",
+    sb_console: "대시보드",
+    main_library: "라이브러리",
+    sort_date: "출시일 순 ▾",
+    enc_pill: "암호화됨",
+    cw_title: "이어보기",
+    cw1_title: "바람이 부는 곳 39화",
+    cw1_ep: "시청 완료 · 0회 재생",
+    cw2_title: "드라마 시리즈 · 3화",
+    cw2_ep: "0% · 3회 재생",
+    cw3_title: "바람이 부는 곳 30화",
+    cw3_ep: "2회 재생",
+    cw4_title: "바람이 부는 곳 29화",
+    cw4_ep: "시청 완료 · 1회 재생",
+    stat_types: "미디어 타입 완전 지원",
+    stat_drm: "DRM 암호화",
+    stat_transcode: "적응형 비트레이트",
+    stat_lang: "UI 언어 지원",
+    stat_cloud: "클라우드 업로드 데이터",
+    mt_tag: "모든 미디어, 한 곳에",
+    mt_h2: "서버 하나로 가족 미디어 전부 관리",
+    mt_p: "7가지 미디어 타입, 각각 전용 브라우징 및 재생 인터페이스. 두 번째 앱은 필요 없습니다.",
+    type_movie: "영화",
+    type_movie_desc: "TMDB 스크래핑, 포스터/배경, 4K HDR 트랜스코딩",
+    type_tv: "드라마 · 애니메이션",
+    type_tv_desc: "S01E01 자동 인식, 시즌 집계, TVDB/Bangumi",
+    type_music: "음악",
+    type_music_desc: "앨범·아티스트·장르, 가사 인식, 전체 플레이어",
+    type_photo: "사진",
+    type_photo_desc: "타임라인·얼굴 클러스터링·GPS 위치, AI 분류",
+    type_doc: "문서",
+    type_doc_desc: "PDF·EPUB·Office 온라인 미리보기, 읽기 진도 동기화",
+    type_other: "홈 비디오",
+    type_other_desc: "가족 비디오, 튜토리얼 등, 범용 파일 브라우저",
+    type_file: "파일 관리",
+    type_file_desc: "분할 업로드·디렉토리 생성·일괄 다운로드",
+    feat_tag: "핵심 기능",
+    feat_h2: "단순한 '플레이어'가 아닙니다",
+    feat_p: "9527은 완전한 홈 미디어 센터입니다. 수집부터 재생까지 모든 단계가 준비되어 있습니다.",
+    feat1_h: "스마트 메타데이터 스크래핑",
+    feat1_p: "TMDB, TVDB, 豆瓣, Bangumi, OMDb 5개 데이터 소스, AI 백업 지원. 포스터, 줄거리, 출연진 정보 자동 수집, 로컬 저장.",
+    feat2_h: "하드웨어 가속 트랜스코딩",
+    feat2_p: "JIT 즉시 트랜스코딩, Intel QSV, NVIDIA NVENC, Apple VideoToolbox 지원. HLS/DASH 적응형 멀티 비트레이트, 탐색 바 미리보기, 4K HDR 스트리밍.",
+    feat3_h: "DRM 콘텐츠 보호",
+    feat3_p: "Widevine, FairPlay, PowerDRM, HLS AES-128 풀 파이프라인. CMAF fMP4 패키징, 라이선스 엔드포인트 내장, 완전한 감사 로그.",
+    feat4_h: "자막 & 멀티 오디오 트랙",
+    feat4_p: "내장 자막 자동 추출, 사이드카 파일(srt/ass/vtt) 인식. Whisper ASR 음성 자막, PGS OCR 지원.",
+    feat5_h: "가족 접근 관리",
+    feat5_p: "다중 사용자 역할 체계, 라이브러리 레벨 ACL. 자녀 보호: 콘텐츠 등급 + PIN + 시간대 + 일일 스케줄.",
+    feat6_h: "AI 사진 분석",
+    feat6_p: "InsightFace 얼굴 인식 및 클러스터링으로 인물별 정리. GPS 역지오코딩, ONNX MobileNet 장면 분류, 스마트 앨범 자동 생성.",
+    tag_douban: "豆瓣",
+    tag_ai: "AI 백업",
+    tag_resume: "이어보기",
+    tag_multi_audio: "멀티 오디오",
+    tag_parental: "자녀 보호",
+    tag_acl: "라이브러리 ACL",
+    tag_pin: "PIN 잠금",
+    tag_face: "얼굴 클러스터링",
+    tag_gps: "GPS 위치",
+    tag_ai_classify: "AI 분류",
+    sec_badge: "프라이버시 보호가 최우선",
+    sec_h: "당신의 키는,\n오직 당신만이 압니다",
+    sec_body: "9527은 계정 등록이 필요 없고 클라우드 서비스 연결도 필요 없습니다. 모든 데이터는 당신의 기기에서만 실행됩니다. 이것은 기능이 아니라 아키텍처 원칙입니다.",
+    sec_item1: "JWT 세션 인증, OAuth 클라이언트 자격증명, 외부 플레이어 통합 지원",
+    sec_item2: "완전한 접근 로그와 401/403 권한 인터셉트, 모든 접근 추적 가능",
+    sec_item3: "DRM 라이선스 감사 API, 콘텐츠 인증 체인 완전 제어",
+    sec_item4: "업로드 파일의 소스 파일 선택적 삭제 가능, 로컬 스토리지 안전 관리",
+    sec_item5: "실시간 파일 모니터링(fsnotify), 변경 즉시 감지, 지연 없음",
+    shield_sub: "나만의 것",
+    cmp_tag: "제품 비교",
+    cmp_h2: "왜 9527을 선택하나요?",
+    cmp_p: "프라이버시는 부가 기능이 아니라 아키텍처의 출발점입니다.",
+    cmp_col_feat: "기능 / 특징",
+    cmp_r1: "완전 셀프호스팅 · 클라우드 의존 없음",
+    cmp_r2: "계정 불필요",
+    cmp_r3: "DRM 보호 (Widevine/FairPlay)",
+    cmp_r4: "하드웨어 트랜스코딩 (무료)",
+    cmp_r5: "AI 스크래핑 백업 (LLM)",
+    cmp_r6: "얼굴 인식 · 사진 클러스터링",
+    cmp_r7: "Whisper ASR 자막 생성",
+    cmp_r8: "문서 리더 (PDF · EPUB · Office)",
+    cmp_r9: "豆瓣 · Bangumi 데이터 소스",
+    cmp_r10: "자녀 보호 + 시간대",
+    cmp_r11: "완전 오픈소스",
+    partial: "부분",
+    paid: "유료",
+    limited: "제한적",
+    cta_h: "미디어 라이브러리를\n다시 손에 가져올 준비가 됐나요?",
+    cta_p: "Docker 명령 하나로 배포, 5분 만에 설치 완료. 영구 무료, 데이터는 항상 당신의 기기에만.",
+    cta_btn1: "9527 셀프호스팅 →",
+    cta_btn2: "배포 문서 보기",
+    cta_note: "Docker · Synology NAS · QNAP · Raspberry Pi · 홈 서버 · x86 / ARM64 지원",
+    footer_copy: "나만의 미디어, 오직 나만을 위한 · Your media. Your rules. Your 9527.",
+    ft_docs: "문서",
+    ft_community: "커뮤니티",
+    ft_changelog: "변경 로그",
+    ft_privacy: "개인정보 처리방침",
+  }
+};
+
+// ─── LANG METADATA ───────────────────────────────────────────────
+const langMeta = {
+  "zh-CN": { flag: "🇨🇳", label: "简体中文" },
+  "zh-TW": { flag: "🇨🇳", label: "繁體中文" },
+  "en":    { flag: "🇺🇸", label: "English" },
+  "ja":    { flag: "🇯🇵", label: "日本語" },
+  "ko":    { flag: "🇰🇷", label: "한국어" }
+};
+
+let currentLang = "zh-CN";
+
+// ─── CORE RENDERING ──────────────────────────────────────────────
+function applyLang(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+  currentLang = lang;
+
+  // Update all [data-i18n] elements
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key] !== undefined) {
+      // Handle newlines in headings
+      if (el.tagName === "H2" || el.tagName === "H1" || el.classList.contains("cta-h") || el.classList.contains("sec-h")) {
+        el.innerHTML = dict[key].replace(/\n/g, "<br>");
+      } else {
+        el.textContent = dict[key];
+      }
+    }
+  });
+
+  // Update html lang attribute
+  document.documentElement.lang = lang;
+
+  // Update lang button display
+  const meta = langMeta[lang];
+  document.getElementById("langFlag").textContent = meta.flag;
+  document.getElementById("langLabel").textContent = meta.label;
+
+  // Update active state in dropdown
+  document.querySelectorAll(".lang-option").forEach(opt => {
+    opt.classList.remove("active");
+    const optLang = opt.getAttribute("onclick").match(/'([^']+)'/)[1];
+    if (optLang === lang) opt.classList.add("active");
+  });
+
+  // Save preference
+  try { localStorage.setItem("9527_lang", lang); } catch(e) {}
+}
+
+function toggleLangDropdown() {
+  const btn = document.getElementById("langBtn");
+  const dropdown = document.getElementById("langDropdown");
+  const isOpen = dropdown.classList.contains("open");
+  dropdown.classList.toggle("open", !isOpen);
+  btn.classList.toggle("open", !isOpen);
+}
+
+function setLang(lang) {
+  applyLang(lang);
+  document.getElementById("langDropdown").classList.remove("open");
+  document.getElementById("langBtn").classList.remove("open");
+}
+
+// Close dropdown when clicking outside
+document.addEventListener("click", function(e) {
+  const switcher = document.querySelector(".lang-switcher");
+  if (switcher && !switcher.contains(e.target)) {
+    document.getElementById("langDropdown").classList.remove("open");
+    document.getElementById("langBtn").classList.remove("open");
+  }
+});
+
+// Init: load saved lang or detect browser lang
+(function init() {
+  let saved;
+  try { saved = localStorage.getItem("9527_lang"); } catch(e) {}
+  if (saved && i18n[saved]) {
+    applyLang(saved);
+    return;
+  }
+  const browserLang = (navigator.language || "zh-CN").toLowerCase();
+  if (browserLang.startsWith("zh-tw") || browserLang.startsWith("zh-hk")) {
+    applyLang("zh-TW");
+  } else if (browserLang.startsWith("zh")) {
+    applyLang("zh-CN");
+  } else if (browserLang.startsWith("ja")) {
+    applyLang("ja");
+  } else if (browserLang.startsWith("ko")) {
+    applyLang("ko");
+  } else {
+    applyLang("en");
+  }
+})();
+</script>
+</body>
+</html>
