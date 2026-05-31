@@ -290,6 +290,9 @@
     border: 2px solid rgba(56,138,221,0.3);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   }
+  .shield-logo img {
+    height: calc(52px * var(--ui-scale)); width: auto; display: block; object-fit: contain;
+  }
   .shield-num { font-family: var(--font-mono); font-size: calc(22px * var(--ui-scale)); font-weight: 700; color: white; letter-spacing: 2px; }
   .shield-sub { font-size: calc(10px * var(--ui-scale)); color: var(--blue-200); letter-spacing: 0.5px; }
 
@@ -358,7 +361,6 @@
   svg[width="10"][height="10"] { width: calc(10px * var(--ui-scale)); height: calc(10px * var(--ui-scale)); }
   svg[width="11"][height="11"] { width: calc(11px * var(--ui-scale)); height: calc(11px * var(--ui-scale)); }
   svg[width="13"][height="13"] { width: calc(13px * var(--ui-scale)); height: calc(13px * var(--ui-scale)); }
-  svg[width="40"][height="40"] { width: calc(40px * var(--ui-scale)); height: calc(40px * var(--ui-scale)); }
   .cw-thumb-bg text { font-size: calc(20px * var(--ui-scale)); }
 </style>
 </head>
@@ -749,11 +751,9 @@
   </div>
   <div class="sec-right">
     <div class="shield-big">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <path d="M20 3L35 9v12C35 28 28 33 20 37C12 33 5 28 5 21V9L20 3z" fill="rgba(24,95,165,0.3)" stroke="rgba(56,138,221,0.5)" stroke-width="1.5"/>
-        <rect x="15" y="22" width="10" height="8" rx="2.5" fill="#378ADD" opacity="0.8"/>
-        <path d="M17 22V18Q17 14 20 14Q23 14 23 18V22" fill="none" stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <div class="shield-logo">
+        <img src="./assets/logo-shield.png" alt="">
+      </div>
       <div class="shield-num">9527</div>
       <div class="shield-sub" data-i18n="shield_sub"></div>
     </div>
