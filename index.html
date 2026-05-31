@@ -1497,8 +1497,60 @@ const langMeta = {
 
 let currentLang = "zh-CN";
 
+function getTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function langFromTimezone(tz) {
+  if (!tz) return null;
+  if (["Asia/Taipei", "Asia/Hong_Kong", "Asia/Macau"].includes(tz)) return "zh-TW";
+  if (["Asia/Shanghai", "Asia/Chongqing", "Asia/Urumqi", "Asia/Harbin"].includes(tz)) return "zh-CN";
+  if (tz === "Asia/Tokyo") return "ja";
+  if (["Asia/Seoul", "Asia/Pyongyang"].includes(tz)) return "ko";
+  if (tz.startsWith("Europe/") || tz.startsWith("America/") || tz.startsWith("Africa/") || tz.startsWith("Australia/") || tz.startsWith("Pacific/")) {
+    return "en";
+  }
+  return null;
+}
+
+function matchLangTag(tag) {
+  if (!tag) return null;
+  const t = String(tag).toLowerCase().replace(/_/g, "-");
+  if (t.startsWith("zh-tw") || t.startsWith("zh-hk") || t.startsWith("zh-mo") || t === "zh-hant") return "zh-TW";
+  if (t.startsWith("zh-cn") || t.startsWith("zh-sg") || t === "zh-hans") return "zh-CN";
+  if (t.startsWith("ja")) return "ja";
+  if (t.startsWith("ko")) return "ko";
+  if (t.startsWith("en")) return "en";
+  if (t === "zh" || t.startsWith("zh-")) return null;
+  return null;
+}
+
+function detectLangFromSystem() {
+  const tags = (navigator.languages && navigator.languages.length)
+    ? Array.from(navigator.languages)
+    : [navigator.language || ""];
+  const tzLang = langFromTimezone(getTimezone());
+
+  for (const tag of tags) {
+    const matched = matchLangTag(tag);
+    if (matched) return matched;
+  }
+
+  for (const tag of tags) {
+    if (String(tag).toLowerCase().startsWith("zh")) {
+      return tzLang === "zh-TW" ? "zh-TW" : "zh-CN";
+    }
+  }
+
+  return tzLang || "en";
+}
+
 // ─── CORE RENDERING ──────────────────────────────────────────────
-function applyLang(lang) {
+function applyLang(lang, persist) {
   const dict = i18n[lang];
   if (!dict) return;
   currentLang = lang;
@@ -1531,8 +1583,10 @@ function applyLang(lang) {
     if (optLang === lang) opt.classList.add("active");
   });
 
-  // Save preference
-  try { localStorage.setItem("9527_lang", lang); } catch(e) {}
+  // Save only when user explicitly chooses a language
+  if (persist !== false) {
+    try { localStorage.setItem("9527_lang", lang); } catch(e) {}
+  }
 }
 
 function toggleLangDropdown() {
@@ -1558,7 +1612,7 @@ document.addEventListener("click", function(e) {
   }
 });
 
-// Init: load saved lang or detect browser lang
+// Init: use saved preference, otherwise detect from system language / timezone
 (function init() {
   let saved;
   try { saved = localStorage.getItem("9527_lang"); } catch(e) {}
@@ -1566,18 +1620,7 @@ document.addEventListener("click", function(e) {
     applyLang(saved);
     return;
   }
-  const browserLang = (navigator.language || "zh-CN").toLowerCase();
-  if (browserLang.startsWith("zh-tw") || browserLang.startsWith("zh-hk")) {
-    applyLang("zh-TW");
-  } else if (browserLang.startsWith("zh")) {
-    applyLang("zh-CN");
-  } else if (browserLang.startsWith("ja")) {
-    applyLang("ja");
-  } else if (browserLang.startsWith("ko")) {
-    applyLang("ko");
-  } else {
-    applyLang("en");
-  }
+  applyLang(detectLangFromSystem(), false);
 })();
 </script>
 </body>
