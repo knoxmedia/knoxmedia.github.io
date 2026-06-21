@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>9527 — 家庭数藏馆，全程加密，尽在掌握</title>
+<title>9527 — 您的家庭数字保险箱</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -51,8 +51,8 @@
   }
   .logo-mark img { height: calc(32px * var(--ui-scale)); width: auto; display: block; object-fit: contain; }
   .logo-wordmark { font-family: var(--font-mono); font-size: calc(20px * var(--ui-scale)); font-weight: 700; color: white; letter-spacing: 3px; line-height: 1; }
-  .nav-links { display: flex; gap: 28px; list-style: none; }
-  .nav-links a { font-size: calc(13px * var(--ui-scale)); color: var(--blue-200); text-decoration: none; transition: color 0.2s; }
+  .nav-links { display: flex; gap: 28px; list-style: none; flex: 1; justify-content: center; white-space: nowrap; }
+  .nav-links a { font-size: calc(13px * var(--ui-scale)); color: var(--blue-200); text-decoration: none; transition: color 0.2s; white-space: nowrap; }
   .nav-links a:hover { color: white; }
   .nav-cta { display: flex; gap: 10px; align-items: center; }
   .btn-sm-ghost {
@@ -344,8 +344,13 @@
   .ft-links a { font-size: calc(11.5px * var(--ui-scale)); color: var(--blue-200); text-decoration: none; transition: color 0.2s; }
   .ft-links a:hover { color: white; }
 
+  @media (max-width: 1024px) {
+    .nav-links { display: none; }
+    nav { padding: 0 24px; }
+  }
+
   @media (max-width: 768px) {
-    nav { padding: 0 16px; } .nav-links { display: none; }
+    nav { padding: 0 16px; }
     .hero { padding: 56px 16px 40px; }
     .stats-row { flex-direction: column; } .stat { border-right: none; border-bottom: 1px solid rgba(133,183,235,0.08); padding: 20px; }
     .media-types, .features, .compare { padding-left: 16px; padding-right: 16px; }
@@ -828,9 +833,9 @@ const i18n = {
     nav_deploy: "立即部署",
     // Hero
     hero_eyebrow: "完全本地部署 · 零云端依赖 · 家庭级隐私保护",
-    hero_title_1: "家庭数藏馆，",
-    hero_title_2: "全程加密，尽在掌握",
-    hero_sub: "电影 · 剧集 · 音乐 · 图片 · 文档，七类媒体本地私有。\n存储加密 · 传输加密 · 密钥不离手 · 数据不裸奔……你的，就该只有你看得到",
+    hero_title_1: "您的家庭",
+    hero_title_2: "数字保险箱",
+    hero_sub: "电影、照片、回忆……全部本地加密，无需担心数据泄露，让您拥有一个私人的、永久的、安全的家庭数字空间。",
     hero_btn_deploy: "立即免费自建 →",
     hero_btn_demo: "▶ 观看 Demo",
     trust_drm: "内容保护",
@@ -876,8 +881,8 @@ const i18n = {
     stat_cloud: "数据上传到云端",
     // Media types
     mt_tag: "全媒体覆盖",
-    mt_h2: "一个服务器，管理全家媒体",
-    mt_p: "7 种媒体类型，每种都有专属浏览和播放界面，你不需要再装第二个软件。",
+    mt_h2: "一个服务器，装下全家人的数字记忆",
+    mt_p: "影音、相册、文档，全平台自由访问。数据永远留在你家，无需信任任何云。",
     type_movie: "电影",
     type_movie_desc: "自动刮削，海报/背景图，AI字幕识别",
     type_tv: "剧集 · 动漫",
@@ -954,7 +959,7 @@ const i18n = {
     cta_btn2: "查看部署文档",
     cta_note: "支持 Docker · Synology NAS · QNAP · 树莓派 · 家庭服务器 · x86 / ARM64",
     // Footer
-    footer_copy: "家庭数藏馆，全程加密，尽在掌握 · Your media. Your rules. Your 9527.",
+    footer_copy: "您的家庭数字保险箱 · Your media. Your rules. Your 9527.",
     ft_docs: "文档",
     ft_community: "社区",
     ft_changelog: "更新日志",
@@ -969,9 +974,9 @@ const i18n = {
     nav_docs: "文檔",
     nav_deploy: "立即部署",
     hero_eyebrow: "完全本地部署 · 零雲端依賴 · 家庭級隱私保護",
-    hero_title_1: "家庭數藏館，",
-    hero_title_2: "全程加密，盡在掌握",
-    hero_sub: "電影 · 劇集 · 音樂 · 圖片 · 文件，七類媒體本地私有。\n儲存加密 · 傳輸加密 · 密鑰不離手 · 資料不裸奔……你的，就該只有你看得到",
+    hero_title_1: "您的家庭",
+    hero_title_2: "數位保險箱",
+    hero_sub: "電影、照片、回憶……全部本地加密，無需擔心資料外洩，讓您擁有一個私人的、永久的、安全的家庭數位空間。",
     hero_btn_deploy: "立即免費自建 →",
     hero_btn_demo: "▶ 觀看 Demo",
     trust_drm: "內容保護",
@@ -1012,8 +1017,8 @@ const i18n = {
     stat_lang: "介面語言支援",
     stat_cloud: "資料上傳到雲端",
     mt_tag: "全媒體覆蓋",
-    mt_h2: "一個伺服器，管理全家媒體",
-    mt_p: "7 種媒體類型，每種都有專屬瀏覽和播放介面，你不需要再裝第二個軟體。",
+    mt_h2: "一個伺服器，裝下全家人的數位記憶",
+    mt_p: "影音、相簿、文件，全平台自由存取。資料永遠留在你家，無需信任任何雲。",
     type_movie: "電影",
     type_movie_desc: "自動刮削，海報/背景圖，AI字幕識別",
     type_tv: "劇集 · 動漫",
@@ -1085,7 +1090,7 @@ const i18n = {
     cta_btn1: "立即自建 9527 →",
     cta_btn2: "查看部署文檔",
     cta_note: "支援 Docker · Synology NAS · QNAP · 樹莓派 · 家庭伺服器 · x86 / ARM64",
-    footer_copy: "家庭數藏館，全程加密，盡在掌握 · Your media. Your rules. Your 9527.",
+    footer_copy: "您的家庭數位保險箱 · Your media. Your rules. Your 9527.",
     ft_docs: "文檔",
     ft_community: "社群",
     ft_changelog: "更新日誌",
@@ -1100,9 +1105,9 @@ const i18n = {
     nav_docs: "Docs",
     nav_deploy: "Deploy Now",
     hero_eyebrow: "Fully self-hosted · Zero cloud dependency · Family-grade privacy",
-    hero_title_1: "Family digital vault, ",
-    hero_title_2: "encrypted throughout, fully in your control.",
-    hero_sub: "Movies · TV · Music · Photos · Documents — seven media types, locally private.\nStorage encryption · transit encryption · keys never leave your hands · data never runs bare… what's yours should only be seen by you.",
+    hero_title_1: "Your family ",
+    hero_title_2: "digital safe",
+    hero_sub: "Movies, photos, memories… all encrypted locally. No worries about data leaks — enjoy a private, permanent, secure digital space for your family.",
     hero_btn_deploy: "Self-host for Free →",
     hero_btn_demo: "▶ Watch Demo",
     trust_drm: "Protection",
@@ -1143,8 +1148,8 @@ const i18n = {
     stat_lang: "UI Languages",
     stat_cloud: "Data Uploaded to Cloud",
     mt_tag: "All Media, One Place",
-    mt_h2: "One Server to Rule Your Family Media",
-    mt_p: "7 media types, each with a dedicated browsing and playback interface. No second app needed.",
+    mt_h2: "One server, holding your family's digital memories",
+    mt_p: "Video, photos, documents — access freely across all your devices. Your data stays at home, forever — no need to trust any cloud.",
     type_movie: "Movies",
     type_movie_desc: "Auto scraping, posters/backdrops, AI subtitle recognition",
     type_tv: "TV · Anime",
@@ -1216,7 +1221,7 @@ const i18n = {
     cta_btn1: "Self-host 9527 →",
     cta_btn2: "View Deployment Docs",
     cta_note: "Supports Docker · Synology NAS · QNAP · Raspberry Pi · Home Server · x86 / ARM64",
-    footer_copy: "Family digital vault, encrypted throughout, fully in your control. · Your media. Your rules. Your 9527.",
+    footer_copy: "Your family digital safe · Your media. Your rules. Your 9527.",
     ft_docs: "Docs",
     ft_community: "Community",
     ft_changelog: "Changelog",
@@ -1231,9 +1236,9 @@ const i18n = {
     nav_docs: "ドキュメント",
     nav_deploy: "今すぐデプロイ",
     hero_eyebrow: "完全セルフホスト · ゼロクラウド依存 · 家族レベルのプライバシー",
-    hero_title_1: "家庭デジタルアーカイブ、",
-    hero_title_2: "全行程暗号化、完全掌握",
-    hero_sub: "映画 · ドラマ · 音楽 · 写真 · ドキュメント、7種類のメディアをローカルで私有。\n保存暗号化 · 転送暗号化 · 鍵は手放さない · データを裸にしない……あなたのものは、あなただけが見えるべき",
+    hero_title_1: "ご家庭の",
+    hero_title_2: "デジタル金庫",
+    hero_sub: "映画、写真、思い出……すべてローカルで暗号化。データ漏洩の心配なく、私的で永続的、安全な家庭のデジタル空間をお届けします。",
     hero_btn_deploy: "無料でセルフホスト →",
     hero_btn_demo: "▶ デモを見る",
     trust_drm: "コンテンツ保護",
@@ -1274,8 +1279,8 @@ const i18n = {
     stat_lang: "UI言語サポート",
     stat_cloud: "クラウドへのデータ転送",
     mt_tag: "全メディア対応",
-    mt_h2: "1台のサーバーで家族全員のメディアを管理",
-    mt_p: "7種類のメディアタイプ、それぞれ専用の閲覧・再生インターフェース。2つ目のアプリは不要です。",
+    mt_h2: "1台のサーバーに、家族全員のデジタル記憶を",
+    mt_p: "動画、写真、ドキュメント、全プラットフォームで自由にアクセス。データはいつまでも自宅に、クラウドを信じる必要はありません。",
     type_movie: "映画",
     type_movie_desc: "自動スクレイピング、ポスター/背景、AI字幕認識",
     type_tv: "ドラマ・アニメ",
@@ -1347,7 +1352,7 @@ const i18n = {
     cta_btn1: "9527 をセルフホスト →",
     cta_btn2: "デプロイドキュメントを見る",
     cta_note: "Docker · Synology NAS · QNAP · Raspberry Pi · ホームサーバー · x86 / ARM64 対応",
-    footer_copy: "家庭デジタルアーカイブ、全行程暗号化、完全掌握 · Your media. Your rules. Your 9527.",
+    footer_copy: "ご家庭のデジタル金庫 · Your media. Your rules. Your 9527.",
     ft_docs: "ドキュメント",
     ft_community: "コミュニティ",
     ft_changelog: "更新履歴",
@@ -1362,9 +1367,9 @@ const i18n = {
     nav_docs: "문서",
     nav_deploy: "지금 배포",
     hero_eyebrow: "완전 셀프호스팅 · 클라우드 의존 없음 · 가족 수준 프라이버시",
-    hero_title_1: "가정 디지털 아카이브, ",
-    hero_title_2: "전 구간 암호화, 완벽한 통제",
-    hero_sub: "영화 · 드라마 · 음악 · 사진 · 문서, 7가지 미디어 로컬 프라이빗.\n저장 암호화 · 전송 암호화 · 키는 손에서 떠나지 않 · 데이터 노출 없음……당신 것은, 오직 당신만 볼 수 있어야 합니다",
+    hero_title_1: "당신의 가족 ",
+    hero_title_2: "디지털 금고",
+    hero_sub: "영화, 사진, 추억…… 모두 로컬 암호화. 데이터 유출 걱정 없이, 사적이고 영구적이며 안전한 가족 디지털 공간을 제공합니다.",
     hero_btn_deploy: "무료로 셀프호스팅 →",
     hero_btn_demo: "▶ 데모 보기",
     trust_drm: "DRM 콘텐츠 보호",
@@ -1405,8 +1410,8 @@ const i18n = {
     stat_lang: "UI 언어 지원",
     stat_cloud: "클라우드 업로드 데이터",
     mt_tag: "모든 미디어, 한 곳에",
-    mt_h2: "서버 하나로 가족 미디어 전부 관리",
-    mt_p: "7가지 미디어 타입, 각각 전용 브라우징 및 재생 인터페이스. 두 번째 앱은 필요 없습니다.",
+    mt_h2: "서버 하나에, 온 가족의 디지털 기억을 담다",
+    mt_p: "영상, 사진, 문서, 모든 플랫폼에서 자유롭게 접근. 데이터는 항상 집에, 어떤 클라우드도 믿을 필요 없습니다.",
     type_movie: "영화",
     type_movie_desc: "자동 스크래핑, 포스터/배경, AI 자막 인식",
     type_tv: "드라마 · 애니메이션",
@@ -1478,7 +1483,7 @@ const i18n = {
     cta_btn1: "9527 셀프호스팅 →",
     cta_btn2: "배포 문서 보기",
     cta_note: "Docker · Synology NAS · QNAP · Raspberry Pi · 홈 서버 · x86 / ARM64 지원",
-    footer_copy: "가정 디지털 아카이브, 전 구간 암호화, 완벽한 통제 · Your media. Your rules. Your 9527.",
+    footer_copy: "당신의 가족 디지털 금고 · Your media. Your rules. Your 9527.",
     ft_docs: "문서",
     ft_community: "커뮤니티",
     ft_changelog: "변경 로그",
