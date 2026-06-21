@@ -1,8 +1,8 @@
-# 9527
+# Vauldy
 
-**9527 · 轻量级家庭媒体服务器** / *Lightweight home media server — your keys, your data*
+**Vauldy · 轻量级家庭媒体服务器** / *Lightweight home media server — your keys, your data*
 
-> 「9527」谐音「就我自己」。加密在你手里，密钥只有你知道。这不只是一款软件，这是你对自己数字生活的主权宣言。
+> 加密在你手里，密钥只有你知道。这不只是一款软件，这是你对自己数字生活的主权宣言。
 
 Go · React · TypeScript · SQLite · Docker · [License](./LICENSE)
 
@@ -16,7 +16,7 @@ Go · React · TypeScript · SQLite · Docker · [License](./LICENSE)
 
 ### 项目简介
 
-**9527** 采用 **Go + React** 构建，定位为轻量级家庭/个人媒体中心。加密在你手里，密钥只有你知道——系统可独立部署，也可作为微服务通过 REST API 供外部系统集成。
+**Vauldy** 采用 **Go + React** 构建，定位为轻量级家庭/个人媒体中心。加密在你手里，密钥只有你知道——系统可独立部署，也可作为微服务通过 REST API 供外部系统集成。
 
 
 | 项目   | 说明                                            |
@@ -243,30 +243,30 @@ npm run dev    # http://localhost:5173，API 代理到 :8200
 
 ```powershell
 cd web && npm run build && cd ..
-go build -o 9527 ./cmd/server
-./9527    # 单端口提供 API + 静态前端
+go build -o vauldy ./cmd/server
+./vauldy    # 单端口提供 API + 静态前端
 ```
 
 #### Docker
 
 ```bash
 # 构建
-docker build -t 9527 .
+docker build -t vauldy .
 
 # 运行
 docker run -d \
-  --name 9527 \
+  --name vauldy \
   -p 8200:8200 \
   -v ./data:/app/data \
   -v /your/media:/media \
-  9527
+  vauldy
 ```
 
 ```yaml
 # docker-compose.yml（项目自带）
 version: "3.8"
 services:
-  "9527":
+  vauldy:
     build: .
     ports:
       - "8200:8200"
@@ -545,9 +545,9 @@ services:
 
 ### Overview
 
-**9527** is built with **Go + React** as a lightweight home/personal media server. Your keys, your data — it runs standalone or as a microservice exposing REST APIs for external integration.
+**Vauldy** is built with **Go + React** as a lightweight home/personal media server. Your keys, your data — it runs standalone or as a microservice exposing REST APIs for external integration.
 
-> 「9527」 sounds like *just myself* in Chinese. Encryption is in your hands; only you know the keys. This is not just software — it is a declaration of sovereignty over your digital life.
+> Encryption is in your hands; only you know the keys. This is not just software — it is a declaration of sovereignty over your digital life.
 
 
 | Item         | Details                                       |
@@ -760,30 +760,30 @@ cd web && npm install && npm run dev   # http://localhost:5173 → proxies API t
 
 ```powershell
 cd web && npm run build && cd ..
-go build -o 9527 ./cmd/server
-./9527
+go build -o vauldy ./cmd/server
+./vauldy
 ```
 
 #### Docker
 
 ```bash
 # Build
-docker build -t 9527 .
+docker build -t vauldy .
 
 # Run
 docker run -d \
-  --name 9527 \
+  --name vauldy \
   -p 8200:8200 \
   -v ./data:/app/data \
   -v /your/media:/media \
-  9527
+  vauldy
 ```
 
 ```yaml
 # docker-compose.yml (included in repo)
 version: "3.8"
 services:
-  "9527":
+  vauldy:
     build: .
     ports:
       - "8200:8200"
